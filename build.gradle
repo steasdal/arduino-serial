@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: "jacoco"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.scream3r:jssc:2.8.0'
+    compile 'org.codehaus.groovy:groovy-all:2.2.2'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+}
+
+defaultTasks 'clean', 'jar', 'test', 'jacocoTestReport'
+
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest { attributes 'Main-Class': 'org.teasdale.Main' }
+}
