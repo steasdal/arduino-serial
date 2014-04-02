@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface ArduinoSerialConnection {
 
     /**
-     * @return a collection of available ports (e.g. "COM3", "/dev/ttyS0", "/dev/ttyUSB0", etc.)
+     * @return a collection of available port names (e.g. "COM3", "/dev/ttyS0", "/dev/ttyUSB0", etc.)
      */
     public Collection<String> ports();
 

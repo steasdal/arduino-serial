@@ -4,15 +4,19 @@ import jssc.SerialPort
 import jssc.SerialPortEvent
 import jssc.SerialPortEventListener
 import jssc.SerialPortList
+import org.apache.commons.lang3.Validate
 import org.teasdale.api.ArduinoSerialConfig
 import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialListener
+import org.teasdale.throwable.ArduinoSerialMethodOrderException
 
 class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
     ArduinoSerialConfigImpl arduinoSerialConfigImpl;
-
     SerialPort serialPort = null;
+
+    enum SerialState {UNOPENED, OPENED, CLOSED}
+    SerialState serialState = SerialState.UNOPENED
 
     public ArduinoSerialConnectionImpl(ArduinoSerialConfigImpl arduinoSerialConfigImpl) {
         this.arduinoSerialConfigImpl = arduinoSerialConfigImpl
@@ -31,42 +35,93 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
     @Override
     void open() {
-        serialPort = new SerialPort(getPortname())
-        serialPort.openPort()
-        serialPort.setParams(getBaudrate(), getDatabits(), getStopbits(), getParity())
-        serialPort.setEventsMask(SerialPort.MASK_RXCHAR);
-        serialPort.addEventListener(new SerialPortListener(serialPort))
-
-        // setParams causes the Arduino to reset.  Delay for a moment
-        // to give the arduino time to reset before writing any bytes.
-        Thread.sleep(2000)
+        verifyOpenState()
+        constructSerialPort()
+        configureAndOpenSerialPort()
+        waitTwoSeconds()
+        setStateOpened()
     }
 
     @Override
     void writeBytes(byte[] bytes) {
+        validateByteArray(bytes)
+        verifyWriteState()
         serialPort.writeBytes(bytes)
     }
 
     @Override
     void close() {
+        verifyCloseState()
         serialPort.closePort()
+        setStateClosed()
     }
 
     /* ************************************************************************************************************* */
 
-    private String getPortname() {
+    void verifyOpenState() {
+        if( serialState != SerialState.UNOPENED ) {
+            throw new ArduinoSerialMethodOrderException("The open() method can only be called once")
+        }
+    }
+
+    void constructSerialPort() {
+        serialPort = new SerialPort(getPortname())
+    }
+
+    void configureAndOpenSerialPort() {
+        serialPort.openPort()
+        serialPort.setParams(getBaudrate(), getDatabits(), getStopbits(), getParity())
+        serialPort.setEventsMask(SerialPort.MASK_RXCHAR);
+        serialPort.addEventListener(new SerialPortListener(serialPort))
+    }
+
+    /**
+     * The serialPort.setParams() method causes the Arduino Uno to reset.
+     * Delay for a moment to give the Arduino time to reset before writing.
+     */
+    static void waitTwoSeconds() {
+        Thread.sleep(2000)
+    }
+
+    void setStateOpened() {
+        serialState = SerialState.OPENED
+    }
+
+    void verifyWriteState() {
+        if( serialState == SerialState.OPENED ) {
+            throw new ArduinoSerialMethodOrderException("The open() method must be called before writing serial data")
+        } else if( serialState == SerialState.CLOSED ) {
+            throw new ArduinoSerialMethodOrderException("The close() method has been called - unable to write data")
+        }
+    }
+
+    static void validateByteArray(byte[] bytes) {
+        Validate.notEmpty(bytes);
+    }
+
+    void verifyCloseState() {
+        if( serialState != SerialState.CLOSED ) {
+            throw new ArduinoSerialMethodOrderException("The open() method must be called before close()")
+        }
+    }
+
+    void setStateClosed() {
+        serialState = SerialState.CLOSED
+    }
+
+    String getPortname() {
         arduinoSerialConfigImpl.portname
     }
 
-    private int getBaudrate() {
+    int getBaudrate() {
         arduinoSerialConfigImpl.getBaudrate().value()
     }
 
-    private int getDatabits() {
+    int getDatabits() {
         arduinoSerialConfigImpl.getDatabits().value()
     }
 
-    private int getStopbits() {
+    int getStopbits() {
         int result;
 
         switch (arduinoSerialConfigImpl.getStopbits()) {
@@ -81,7 +136,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         return result
     }
 
-    private int getParity() {
+    int getParity() {
         int result;
 
         switch (arduinoSerialConfigImpl.getParity()) {
@@ -99,7 +154,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         return result
     }
 
-    private void notifyListeners(String newString) {
+    void notifyListeners(String newString) {
         Collection<ArduinoSerialListener> listeners = arduinoSerialConfigImpl.getListeners()
 
         synchronized(listeners) {

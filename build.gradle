@@ -9,6 +9,9 @@ repositories {
 dependencies {
     compile 'org.scream3r:jssc:2.8.0'
     compile 'org.codehaus.groovy:groovy-all:2.2.2'
+    compile 'org.apache.commons:commons-lang3:3.3.1'
+    compile 'cglib:cglib-nodep:3.1'
+
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
