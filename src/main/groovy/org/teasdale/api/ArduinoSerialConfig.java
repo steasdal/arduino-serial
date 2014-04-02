@@ -1,16 +1,40 @@
 package org.teasdale.api;
 
+/**
+ * A container for all options required to configure an {@link ArduinoSerialConnection}
+ */
 public interface ArduinoSerialConfig {
 
+    /**
+     * Default Port Name ("COM3")
+     */
     public static final String DEFAULT_PORTNAME = "COM3";
-    public static final Baudrate DEFAULT_BAUD_RATE = Baudrate.BAUDRATE_9600;
-    public static final Databits DEFAULT_DATA_BITS = Databits.DATABITS_8;
-    public static final Parity DEFAULT_PARITY = Parity.NONE;
-    public static final Stopbits DEFAULT_STOP_BITS = Stopbits.ONE;
 
     /**
-     * Baud Rate Enum - represents the intersection of the sets of
-     * baud rates supported by the Arduino UNO and the serial library.
+     * Default Baud Rate ({@link Baudrate#BAUDRATE_9600})
+     */
+    public static final Baudrate DEFAULT_BAUD_RATE = Baudrate.BAUDRATE_9600;
+
+    /**
+     * Default Data Bits ({@link Databits#DATABITS_8})
+     */
+    public static final Databits DEFAULT_DATA_BITS = Databits.DATABITS_8;
+
+    /**
+     * Default Parity ({@link Parity#NONE})
+     */
+    public static final Parity DEFAULT_PARITY = Parity.NONE;
+
+    /**
+     * Default Stop Bits ({@link Stopbits#ONE})
+     */
+    public static final Stopbits DEFAULT_STOP_BITS = Stopbits.ONE;
+
+    /* ************************************************************************************************************* */
+
+    /**
+     * Enumeration of possible Baud Rate values - represents the intersection of the sets
+     * of baud rates supported by the Arduino UNO and the underlying serial library.
      */
     public enum Baudrate {
         BAUDRATE_300 (300),
@@ -30,13 +54,16 @@ public interface ArduinoSerialConfig {
             this.value = value;
         }
 
+        /**
+         * @return the integer baud rate value represented by the enum constant
+         */
         public int value() {
             return value;
         }
     }
 
     /**
-     * Data Bits Enum
+     * Enumeration of possible Data Bits values
      */
     public enum Databits {
         DATABITS_5 (5),
@@ -50,27 +77,127 @@ public interface ArduinoSerialConfig {
             this.value = value;
         }
 
+        /**
+         * @return the integer stop bits value represented by the enum constant
+         */
         public int value() {
             return value;
         }
     }
 
     /**
-     * Parity Enum
+     * Enumeration of possible Parity values
      */
     public enum Parity { NONE, EVEN, ODD }
 
     /**
-     * Stop Bits Enum
+     * Enumeration of possible Stop Bits values - represents the intersection of the sets of
+     * stop bits values supported by the Arduino UNO and the underlying serial library.
      */
     public enum Stopbits { ONE, TWO }
 
     /* ************************************************************************************************************* */
 
+    /**
+     * Set the name of the port to connect to (e.g. "COM3", "/dev/ttyS0", "/dev/ttyUSB0", etc.)
+     * <br><br>
+     * Defaults to {@link #DEFAULT_PORTNAME}
+     *
+     * @param newPortname The desired port name
+     */
     public void setPortname(String newPortname);
+
+    /**
+     * Set the baud rate of the serial connection
+     * <br><br>
+     * Defaults to {@link #DEFAULT_BAUD_RATE}
+     *
+     * @param newBaudrate The desired baud rate
+     */
     public void setBaudrate(Baudrate newBaudrate);
+
+    /**
+     * Set the data bits of the serial connection
+     * <br><br>
+     * Defaults to {@link #DEFAULT_DATA_BITS}
+     *
+     * @param newDatabits The desired data bits
+     */
     public void setDatabits(Databits newDatabits);
+
+    /**
+     * Set the parity of the serial connection
+     * <br><br>
+     * Defaults to {@link #DEFAULT_PARITY}
+     *
+     * @param newParity The desired parity
+     */
     public void setParity(Parity newParity);
+
+    /**
+     * Set the stop bits of the serial connection
+     * <br><br>
+     * Defaults to {@link #DEFAULT_STOP_BITS}
+     *
+     * @param newStopbits The desired stop bits
+     */
     public void setStopbits(Stopbits newStopbits);
+
+    /**
+     * Register an instance of {@link ArduinoSerialListener} to receive
+     * serial responses from the Arduino.
+     *
+     * @param listener An implementation of the
+     * {@link ArduinoSerialListener} interface.
+     */
     public void registerListener(ArduinoSerialListener listener);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

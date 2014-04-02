@@ -31,19 +31,10 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
     @Override
     void open() {
-        String portname = arduinoSerialConfigImpl.portname
-        int baudrate = getBaudrate()
-        int databits = getDatabits()
-        int stopbits = getStopbits()
-        int parity = getParity()
-
-        serialPort = new SerialPort(portname)
+        serialPort = new SerialPort(getPortname())
         serialPort.openPort()
-        serialPort.setParams(baudrate, databits, stopbits, parity)
-
-        int mask = SerialPort.MASK_RXCHAR
-        serialPort.setEventsMask(mask);
-
+        serialPort.setParams(getBaudrate(), getDatabits(), getStopbits(), getParity())
+        serialPort.setEventsMask(SerialPort.MASK_RXCHAR);
         serialPort.addEventListener(new SerialPortListener(serialPort))
 
         // setParams causes the Arduino to reset.  Delay for a moment
@@ -62,6 +53,10 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     /* ************************************************************************************************************* */
+
+    private String getPortname() {
+        arduinoSerialConfigImpl.portname
+    }
 
     private int getBaudrate() {
         arduinoSerialConfigImpl.getBaudrate().value()
@@ -118,7 +113,8 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     /* ************************************************************************************************************* */
 
     /**
-     * Write incoming serial data to System.out once a newline is encountered.
+     * Queue up received serial data and send it to all listeners
+     * only once we've received an entire null terminated string.
      */
     class SerialPortListener implements SerialPortEventListener {
 
