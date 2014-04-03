@@ -88,7 +88,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     void verifyWriteState() {
-        if( serialState == SerialState.OPENED ) {
+        if( serialState == SerialState.UNOPENED ) {
             throw new ArduinoSerialMethodOrderException("The open() method must be called before writing serial data")
         } else if( serialState == SerialState.CLOSED ) {
             throw new ArduinoSerialMethodOrderException("The close() method has been called - unable to write data")
@@ -96,11 +96,11 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     static void validateByteArray(byte[] bytes) {
-        Validate.notEmpty(bytes);
+        Validate.notEmpty( (byte[]) bytes);
     }
 
     void verifyCloseState() {
-        if( serialState != SerialState.CLOSED ) {
+        if( serialState != SerialState.OPENED ) {
             throw new ArduinoSerialMethodOrderException("The open() method must be called before close()")
         }
     }
