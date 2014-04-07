@@ -3,13 +3,15 @@ package org.teasdale
 import org.teasdale.api.ArduinoSerialConfig
 import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialFactory
-import org.teasdale.api.ArduinoSerialListener;
+import org.teasdale.api.ArduinoSerialListener
 
 public class Main {
 
     public static Console console = null
+    public static def externalConfig = null
+    public static final String EXTERNAL_CONFIG_FILE = "external_config.txt"
 
-    public static ArduinoSerialFactory factory = null
+    public static ArduinoSerialFactory factory = ArduinoSerialFactory.getInstance()
     public static ArduinoSerialConnection connection = null
 
     public static final String START = /start/
@@ -23,6 +25,8 @@ public class Main {
 
     public static void main(String[] args) {
         getNewConsoleExitIfNull()
+
+        loadConfigFile()
 
         consoleWriteLn('Please enter a command (type "help" for available commands)')
         consoleWriteLn();
@@ -65,20 +69,75 @@ public class Main {
         }
     }
 
-    private static void start() {
-        factory = ArduinoSerialFactory.getInstance()
+    private static void loadConfigFile() {
+        File configFile = new File(EXTERNAL_CONFIG_FILE)
 
-        ArduinoSerialConfig config = factory.getArduinoSerialConfig()
+        if(configFile.exists()) {
+            consoleWriteLn("Loading configuration file ${EXTERNAL_CONFIG_FILE}")
+            externalConfig = new ConfigSlurper().parse( configFile.text )
+        } else {
+            consoleWriteLn("No external configuration file found")
+        }
+    }
+
+    private static void start() {
+        ArduinoSerialConfig config = getConfig()
         config.registerListener(new Listener())
-        config.setPortname("/dev/tty.usbmodemfd121")
 
         connection = factory.getArduinoSerialConnection(config)
-
         connection.open()
 
         consoleWriteLn()
         consoleWriteLn("Connection Open")
         consoleWriteLn()
+    }
+
+    private static ArduinoSerialConfig getConfig() {
+        ArduinoSerialConfig config = factory.getArduinoSerialConfig()
+
+        if(externalConfig != null) {
+            def portname = externalConfig.serial.portname
+            def baudrate = externalConfig.serial.baudrate
+            def databits = externalConfig.serial.databits
+            def stopbits = externalConfig.serial.stopbits
+            def parity = externalConfig.serial.parity
+
+            if( portname ) { config.setPortname( portname ) }
+
+            if( baudrate ) {
+                try {
+                    config.setBaudrate( ArduinoSerialConfig.Baudrate.parse( baudrate ) )
+                } catch( Throwable throwable ) {
+                    consoleWriteLn("Unable to parse baudrate value from config file: ${throwable.getMessage()}")
+                }
+            }
+
+            if( databits ) {
+                try {
+                    config.setDatabits( ArduinoSerialConfig.Databits.parse( databits ) )
+                } catch( Throwable throwable ) {
+                    consoleWriteLn("Unable to parse databits value from config file: ${throwable.getMessage()}")
+                }
+            }
+
+            if( stopbits ) {
+                try {
+                    config.setStopbits( ArduinoSerialConfig.Stopbits.parse( stopbits ) )
+                } catch( Throwable throwable ) {
+                    consoleWriteLn("Unable to parse stopbits value from config file: ${throwable.getMessage()}")
+                }
+            }
+
+            if( parity ) {
+                try {
+                    config.setParity( ArduinoSerialConfig.Parity.parse( parity ) )
+                } catch( Throwable throwable ) {
+                    consoleWriteLn("Unable to parse parity value from config file: ${throwable.getMessage()}")
+                }
+            }
+        }
+
+        return config
     }
 
     private static void transmit(String input) {

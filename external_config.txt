@@ -1,0 +1,5 @@
+serial.portname = "COM3"
+serial.baudrate = 9600
+serial.databits = 8
+serial.parity = "none"
+serial.stopbits = 1
