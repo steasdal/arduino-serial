@@ -21,7 +21,7 @@ public class Main {
     public static final String HELP = /help/
     public static final String QUIT = /quit/
 
-    public static final String NEWLINE = "\n\r";
+    public static final String NEWLINE = "\n\r"
 
     public static void main(String[] args) {
         getNewConsoleExitIfNull()
@@ -29,7 +29,7 @@ public class Main {
         loadConfigFile()
 
         consoleWriteLn('Please enter a command (type "help" for available commands)')
-        consoleWriteLn();
+        consoleWriteLn()
 
         for(;;) {
 
@@ -61,11 +61,11 @@ public class Main {
     }
 
     private static void getNewConsoleExitIfNull() {
-        console = System.console();
+        console = System.console()
 
         if( console == null ) {
-            System.out.println("Console object is null.  Start failed.");
-            System.exit(1);
+            System.out.println("Console object is null.  Start failed.")
+            System.exit(1)
         }
     }
 
@@ -193,11 +193,11 @@ public class Main {
     }
 
     private static void consoleWriteLn(final String string) {
-        console.printf(string + NEWLINE);
+        console.printf(string + NEWLINE)
     }
 
     private static void consoleWriteLn() {
-        consoleWriteLn("");
+        consoleWriteLn("")
     }
 
     private static void printAvailableCommands() {
@@ -219,7 +219,9 @@ public class Main {
     static class Listener implements ArduinoSerialListener {
         @Override
         void stringReceived(String string) {
-            consoleWriteLn(string)
+            // Using println here because the console tends to hold
+            // onto output instead of displaying it immediately
+            println string
         }
     }
 }
