@@ -31,6 +31,18 @@ public interface ArduinoSerialConnection {
     public void writeBytes(byte[] bytes);
 
     /**
+     * Update the value of a previously registered command.  Once updated,
+     * the command and value will be sent on the next transmission cycle.
+     * <br><br>
+     * The command being updated must have been previously registerd via the
+     * {@link ArduinoSerialConfig#registerCommand(String, int)} method.
+     *
+     * @param commandName The name of the command to update
+     * @param value The updated command value
+     */
+    public void updateCommand(String commandName, int value);
+
+    /**
      * Close the serial connection.
      */
     public void close();

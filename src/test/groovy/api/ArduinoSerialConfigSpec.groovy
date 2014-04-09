@@ -1,6 +1,7 @@
 package api
 
 import org.teasdale.api.ArduinoSerialConfig
+import org.teasdale.api.ArduinoSerialFactory
 import spock.lang.Specification
 
 class ArduinoSerialConfigSpec extends Specification {
@@ -226,5 +227,27 @@ class ArduinoSerialConfigSpec extends Specification {
         "3"              | IllegalArgumentException
         "three"          | IllegalArgumentException
         new Integer(3)   | IllegalArgumentException
+    }
+
+    def "Verify that the updateFrequency() method takes the expected range of values without throwing an exception"() {
+        when: "We call the updateFrequency method"
+        ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setUpdateFrequency(frequency)
+
+        then: "No exception is thrown"
+        notThrown(IllegalArgumentException)
+
+        where:
+        frequency << (ArduinoSerialConfig.MINIMUM_UPDATE_FREQUENCY..ArduinoSerialConfig.MAXIMUM_UPDATE_FREQUENCY)
+    }
+
+    def "Verify that the udpateFrequecy() method throws the expected exception when fed values outside of the acceptable range"() {
+        when: "We call the updateFrequency method with some bad values"
+        ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setUpdateFrequency(frequency)
+
+        then: "We get the dreaded IllegalArgumentException"
+        thrown(IllegalArgumentException)
+
+        where:
+        frequency << [-1, 0, 4, 21, 42, 10000000]
     }
 }

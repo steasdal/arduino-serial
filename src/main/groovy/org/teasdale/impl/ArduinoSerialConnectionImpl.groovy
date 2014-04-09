@@ -9,6 +9,7 @@ import org.teasdale.api.ArduinoSerialConfig
 import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialListener
 import org.teasdale.throwable.ArduinoSerialMethodOrderException
+import org.teasdale.throwable.ArduinoSerialUnknownCommandException
 
 class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
@@ -46,7 +47,14 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     void writeBytes(byte[] bytes) {
         validateByteArray(bytes)
         verifyWriteState()
-        serialPort.writeBytes(bytes)
+        serialPort.writeBytes( bytes )
+    }
+
+    @Override
+    public void updateCommand(String commandName, int value) {
+        validateCommandName(commandName)
+        verifyWriteState()
+        updateCommand( arduinoSerialConfigImpl.getCommands(), commandName, value )
     }
 
     @Override
@@ -96,7 +104,23 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     static void validateByteArray(byte[] bytes) {
-        Validate.notEmpty( (byte[]) bytes);
+        Validate.notEmpty( (byte[]) bytes )
+    }
+
+    static void validateCommandName(String commandName) {
+        Validate.notEmpty( (String) commandName )
+    }
+
+    static void updateCommand(Map<String, ArduinoSerialCommand> commands, String commandName, int value) {
+        synchronized(commands) {
+            ArduinoSerialCommand command = commands.get(commandName)
+
+            if( command == null ) {
+                throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
+            } else {
+                command.updateValue(value)
+            }
+        }
     }
 
     void verifyCloseState() {

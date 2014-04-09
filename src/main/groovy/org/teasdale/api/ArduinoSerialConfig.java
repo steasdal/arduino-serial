@@ -32,6 +32,21 @@ public interface ArduinoSerialConfig {
      */
     public static final Stopbits DEFAULT_STOP_BITS = Stopbits.ONE;
 
+    /**
+     * Default Update Frequency (16 updates per second)
+     */
+    public static final int DEFAULT_UPDATE_FREQUENCY = 16;
+
+    /**
+     * Minimum Update Frequency (5 updates per second)
+     */
+    public static final int MINIMUM_UPDATE_FREQUENCY = 5;
+
+    /**
+     * Maximum Update Frequency (20 updates per second)
+     */
+    public static final int MAXIMUM_UPDATE_FREQUENCY = 20;
+
     /* ************************************************************************************************************* */
 
     /**
@@ -254,6 +269,26 @@ public interface ArduinoSerialConfig {
      * @param newStopbits The desired stop bits
      */
     public void setStopbits(Stopbits newStopbits);
+
+    /**
+     * Set the update frequency (in updates per second) - must be between
+     * {@link #MINIMUM_UPDATE_FREQUENCY} and {@link #MAXIMUM_UPDATE_FREQUENCY}
+     * <br><br>
+     * Defaults to {@link #DEFAULT_UPDATE_FREQUENCY}
+     *
+     * @param updateFrequency The desired update frequency
+     */
+    public void setUpdateFrequency(int updateFrequency);
+
+    /**
+     * Register a command.
+     *
+     * @param commandName The name of the command to register
+     * @param initialValue The initial value of the command.  This is
+     *                     the value that the command will revert to
+     *                     if the serial connection is lost.
+     */
+    public void registerCommand(String commandName, int initialValue);
 
     /**
      * Register an instance of {@link ArduinoSerialListener} to receive
