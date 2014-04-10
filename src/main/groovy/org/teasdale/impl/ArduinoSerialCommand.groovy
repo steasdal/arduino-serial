@@ -4,8 +4,8 @@ class ArduinoSerialCommand {
     public ArduinoSerialCommand(String name, int initialValue) {
         this.name = name
         this.initialValue = initialValue
-        this.currentValue = currentValue
-        this.updatePending = false
+        this.currentValue = initialValue
+        this.updatePending = true
     }
 
     String name

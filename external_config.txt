@@ -1,9 +1,9 @@
-serial.portname = "COM3"
+serial.portname = "/dev/tty.usbmodemfd121"
 serial.baudrate = 9600
 serial.databits = 8
 serial.parity = "none"
 serial.stopbits = 1
-serial.updatefrequency = 16
+serial.updatefrequency = 5
 
 commands {
     blink {

@@ -10,11 +10,13 @@ import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialListener
 import org.teasdale.throwable.ArduinoSerialMethodOrderException
 import org.teasdale.throwable.ArduinoSerialUnknownCommandException
+import org.teasdale.util.DataUpdater
 
 class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
     ArduinoSerialConfigImpl arduinoSerialConfigImpl;
     SerialPort serialPort = null;
+    DataUpdater dataUpdater = null;
 
     enum SerialState {UNOPENED, OPENED, CLOSED}
     SerialState serialState = SerialState.UNOPENED
@@ -40,6 +42,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         constructSerialPort()
         configureAndOpenSerialPort()
         waitTwoSeconds()
+        configureAndStartDataUpdater()
         setStateOpened()
     }
 
@@ -47,7 +50,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     void writeBytes(byte[] bytes) {
         validateByteArray(bytes)
         verifyWriteState()
-        serialPort.writeBytes( bytes )
+        syncronizedWriteBytes( bytes )
     }
 
     @Override
@@ -60,7 +63,8 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     @Override
     void close() {
         verifyCloseState()
-        serialPort.closePort()
+        stopDataUpdater()
+        closeSerialPort()
         setStateClosed()
     }
 
@@ -91,6 +95,11 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         Thread.sleep(2000)
     }
 
+    void configureAndStartDataUpdater() {
+        dataUpdater = new DataUpdater(this)
+        dataUpdater.start()
+    }
+
     void setStateOpened() {
         serialState = SerialState.OPENED
     }
@@ -101,6 +110,10 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         } else if( serialState == SerialState.CLOSED ) {
             throw new ArduinoSerialMethodOrderException("The close() method has been called - unable to write data")
         }
+    }
+
+    synchronized void syncronizedWriteBytes(byte[] bytes) {
+        serialPort.writeBytes( bytes )
     }
 
     static void validateByteArray(byte[] bytes) {
@@ -127,6 +140,15 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         if( serialState != SerialState.OPENED ) {
             throw new ArduinoSerialMethodOrderException("The open() method must be called before close()")
         }
+    }
+
+    void stopDataUpdater() {
+        dataUpdater.stop()
+        dataUpdater = null
+    }
+
+    void closeSerialPort() {
+        serialPort.closePort()
     }
 
     void setStateClosed() {

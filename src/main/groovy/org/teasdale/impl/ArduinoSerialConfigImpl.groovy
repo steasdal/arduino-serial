@@ -59,6 +59,10 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         this.updateFrequency = updateFrequency
     }
 
+    public int getUpdateFrequency() {
+        return updateFrequency
+    }
+
     @Override
     public void registerCommand(String commandName, int initialValue) {
         Validate.notEmpty(commandName)
