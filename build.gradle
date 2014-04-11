@@ -15,7 +15,7 @@ dependencies {
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
-defaultTasks 'clean', 'javadoc', 'jar' // , 'test', 'jacocoTestReport'
+defaultTasks 'clean', 'javadoc', 'jar', 'test', 'jacocoTestReport'
 
 jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
