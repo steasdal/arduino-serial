@@ -16,6 +16,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     Parity parity = DEFAULT_PARITY
     Stopbits stopbits = DEFAULT_STOP_BITS
     int updateFrequency = DEFAULT_UPDATE_FREQUENCY
+    int missedUpdatesAllowed = DEFAULT_MISSED_UPDATES_ALLOWED
 
     Map<String, ArduinoSerialCommand> commands = Collections.synchronizedMap(new HashMap<String, ArduinoSerialCommand>())
     Collection<ArduinoSerialListener> listeners = Collections.synchronizedSet(new HashSet<ArduinoSerialListener>())
@@ -61,6 +62,16 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
 
     public int getUpdateFrequency() {
         return updateFrequency
+    }
+
+    @Override
+    public void setMissedUpdatesAllowed(int missedUpdatesAllowed) {
+        Validate.inclusiveBetween(MINIMUM_MISSED_UPDATES_ALLOWED, MAXIMUM_MISSED_UPDATES_ALLOWED, missedUpdatesAllowed);
+        this.missedUpdatesAllowed = missedUpdatesAllowed;
+    }
+
+    public int getMissedUpdatesAllowed() {
+        return missedUpdatesAllowed
     }
 
     @Override

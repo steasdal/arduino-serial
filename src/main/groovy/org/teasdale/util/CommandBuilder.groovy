@@ -7,9 +7,23 @@ class CommandBuilder {
 
     private static final String INIT_START = "INIT"
     private static final String COMMAND_START = "CMD"
+    private static final String UPDATE_RATE = "UPDATE_RATE"
+    private static final String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED"
     private static final String COMMAND_SEPARATOR = ","
     private static final String DATA_SEPARATOR = ":"
     private static final String NEWLINE = "\n"
+
+    public static String buildUpdateFrequencyInitString(ArduinoSerialConfigImpl config) {
+        return buildInitString(UPDATE_RATE, config.getUpdateFrequency().toString())
+    }
+
+    public static String buildMissedUpdatesAllowedInitString(ArduinoSerialConfigImpl config) {
+        return buildInitString(MISSED_UPDATES_ALLOWED, config.getMissedUpdatesAllowed().toString())
+    }
+
+    private static String buildInitString(String initName, String initValue) {
+        return INIT_START + COMMAND_SEPARATOR + initName + DATA_SEPARATOR + initValue + NEWLINE
+    }
 
     public static String buildUpdateString(ArduinoSerialConfigImpl config) {
         StringBuffer stringBuffer = new StringBuffer(COMMAND_START)
@@ -24,7 +38,6 @@ class CommandBuilder {
         }
 
         stringBuffer.append(NEWLINE)
-
         return stringBuffer.toString()
     }
 }

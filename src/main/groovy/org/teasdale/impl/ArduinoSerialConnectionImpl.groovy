@@ -10,6 +10,7 @@ import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialListener
 import org.teasdale.throwable.ArduinoSerialMethodOrderException
 import org.teasdale.throwable.ArduinoSerialUnknownCommandException
+import org.teasdale.util.CommandBuilder
 import org.teasdale.util.DataUpdater
 
 class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
@@ -42,6 +43,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         constructSerialPort()
         configureAndOpenSerialPort()
         waitTwoSeconds()
+        sendInitializationStrings()
         configureAndStartDataUpdater()
         setStateOpened()
     }
@@ -93,6 +95,14 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
      */
     static void waitTwoSeconds() {
         Thread.sleep(2000)
+    }
+
+    void sendInitializationStrings() {
+        String updateFrequencyInitString = CommandBuilder.buildUpdateFrequencyInitString(arduinoSerialConfigImpl)
+        String missedUpdatesAllowedInitString = CommandBuilder.buildMissedUpdatesAllowedInitString(arduinoSerialConfigImpl)
+
+        syncronizedWriteBytes(updateFrequencyInitString.getBytes())
+        syncronizedWriteBytes(missedUpdatesAllowedInitString.getBytes())
     }
 
     void configureAndStartDataUpdater() {

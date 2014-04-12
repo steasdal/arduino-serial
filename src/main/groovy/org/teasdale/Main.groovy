@@ -107,6 +107,7 @@ public class Main {
             def stopbits = externalConfig.serial.stopbits
             def parity = externalConfig.serial.parity
             def updatefrequency = externalConfig.serial.updatefrequency
+            def maxmissedupdates = externalConfig.serial.maxmissedupdates
             def commands = externalConfig.commands
 
             if( portname ) { config.setPortname( portname ) }
@@ -148,6 +149,14 @@ public class Main {
                     config.setUpdateFrequency( updatefrequency )
                 } catch( Throwable throwable ) {
                     consoleWriteLn("Unable to set update frequency to ${updatefrequency}: ${throwable.getMessage()}")
+                }
+            }
+
+            if( maxmissedupdates ) {
+                try {
+                    config.setMissedUpdatesAllowed( maxmissedupdates )
+                } catch ( Throwable throwable ) {
+                    consoleWriteLn("Unable to set allowed missed updates to ${maxmissedupdates}: ${throwable.getMessage()}")
                 }
             }
 

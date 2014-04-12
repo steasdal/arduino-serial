@@ -229,8 +229,8 @@ class ArduinoSerialConfigSpec extends Specification {
         new Integer(3)   | IllegalArgumentException
     }
 
-    def "Verify that the updateFrequency() method takes the expected range of values without throwing an exception"() {
-        when: "We call the updateFrequency method"
+    def "Verify that the setUpdateFrequency() method takes the expected range of values without throwing an exception"() {
+        when: "We call the setUpdateFrequency method"
         ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setUpdateFrequency(frequency)
 
         then: "No exception is thrown"
@@ -240,8 +240,8 @@ class ArduinoSerialConfigSpec extends Specification {
         frequency << (ArduinoSerialConfig.MINIMUM_UPDATE_FREQUENCY..ArduinoSerialConfig.MAXIMUM_UPDATE_FREQUENCY)
     }
 
-    def "Verify that the udpateFrequecy() method throws the expected exception when fed values outside of the acceptable range"() {
-        when: "We call the updateFrequency method with some bad values"
+    def "Verify that the setUpdateFrequecy() method throws the expected exception when fed values outside of the acceptable range"() {
+        when: "We call the setUpdateFrequency method with some bad values"
         ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setUpdateFrequency(frequency)
 
         then: "We get the dreaded IllegalArgumentException"
@@ -250,4 +250,28 @@ class ArduinoSerialConfigSpec extends Specification {
         where:
         frequency << [-1, 0, 4, 21, 42, 10000000]
     }
+
+    def "Verify that the setMissedUpdatesAllowed() method accepts numbers within the expected range without throwing an exception"() {
+        when: "We call the setMissedUpdatesAllowed method with good values"
+        ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setMissedUpdatesAllowed(missedUpdatesAllowed)
+
+        then:
+        notThrown(IllegalArgumentException)
+
+        where:
+        missedUpdatesAllowed << (ArduinoSerialConfig.MINIMUM_MISSED_UPDATES_ALLOWED..ArduinoSerialConfig.MAXIMUM_MISSED_UPDATES_ALLOWED)
+    }
+
+    def "Verify that the setMissedUpdatesAllowed() method throws the expected exception when fed some unnaceptable values"() {
+        when: "The setMissedUpdatesAllowed method is passed some invalid values"
+        ArduinoSerialFactory.getInstance().getArduinoSerialConfig().setMissedUpdatesAllowed(missedUpdatesAllowed)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        missedUpdatesAllowed << [-1, 0, 1, 2, 101, 1000, 10000]
+    }
+
+
 }

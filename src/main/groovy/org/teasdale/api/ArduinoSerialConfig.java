@@ -47,6 +47,21 @@ public interface ArduinoSerialConfig {
      */
     public static final int MAXIMUM_UPDATE_FREQUENCY = 20;
 
+    /**
+     * Default Missed Updates Allowed (8 mixxed updates)
+     */
+    public static final int DEFAULT_MISSED_UPDATES_ALLOWED = 4;
+
+    /**
+     * Maximum Missed Updates Allowed (100 updates)
+     */
+    public static final int MAXIMUM_MISSED_UPDATES_ALLOWED = 100;
+
+    /**
+     * Minimum Missed Updates Allowed (3 updates)
+     */
+    public static final int MINIMUM_MISSED_UPDATES_ALLOWED = 3;
+
     /* ************************************************************************************************************* */
 
     /**
@@ -279,6 +294,15 @@ public interface ArduinoSerialConfig {
      * @param updateFrequency The desired update frequency
      */
     public void setUpdateFrequency(int updateFrequency);
+
+    /**
+     * Set the maximum number of missed updates allowed before all
+     * commands are reset to their initial values - must be between
+     * {@link #MAXIMUM_MISSED_UPDATES_ALLOWED} and {@link #MINIMUM_MISSED_UPDATES_ALLOWED}
+     *
+     * @param missedUpdatesAllowed The desired number of missed updates allowed
+     */
+    public void setMissedUpdatesAllowed(int missedUpdatesAllowed);
 
     /**
      * Register a command.

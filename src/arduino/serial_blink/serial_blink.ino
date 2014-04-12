@@ -11,8 +11,8 @@ const int SERVO_02_INIT_DEFAULT = 0;
 
 /* ******** INIT VALUES ******** */
 
-int missedUpdatesAllowed = MISSED_UPDATES_ALLOWED_DEFAULT;
 int updateRate = UPDATE_RATE_DEFAULT;
+int missedUpdatesAllowed = MISSED_UPDATES_ALLOWED_DEFAULT;
 
 int blinkIntervalInit = BLINK_INIT_DEFAULT;
 int motor01Init = MOTOR_01_INIT_DEFAULT;
@@ -66,14 +66,15 @@ void checkForUpdateExpiration() {
     // to elapse before we consider the connection as timed out.
     unsigned long millisecondsBetweenUpdates = 1000 / updateRate;
     unsigned long millisecondsBeforeExpiration = millisecondsBetweenUpdates * missedUpdatesAllowed;
-    
+
     // If the current time minus the previous update time is greater
     // than the number of milliseconds that have elapsed since the last
     // update, we've got an expired connection.
     unsigned long currentMillis = millis();
-    
+
     if( currentMillis - lastUpdate > millisecondsBeforeExpiration ) {
       sendSerialMessage("Expired connection - Setting all values to their defaults");
+      resetAllDefaults();
       connectionLive = false;
     }
   }
@@ -93,7 +94,8 @@ void setBlinkInterval(int newBlinkInterval) {
   if( newBlinkInterval <= 0 ) {
     sendSerialMessage("Negative blink value received - setting blink interval to its default");
     blinkInterval = blinkIntervalInit;
-  } else {
+  } 
+  else {
     blinkInterval = newBlinkInterval;
     sendSerialMessage("Setting blink interval to: " + String(newBlinkInterval));
   }
@@ -104,19 +106,20 @@ void setBlinkInterval(int newBlinkInterval) {
 // If the elapsed number of milliseconds is greater than the
 // blink interval, flip the LED state.
 void checkForBlink() {
-   unsigned long currentMillis = millis();
-  
+  unsigned long currentMillis = millis();
+
   if(currentMillis - previousLedStateChange > blinkInterval) {
-      previousLedStateChange = currentMillis;
-      switchLedState();
-      digitalWrite(led, ledState);
+    previousLedStateChange = currentMillis;
+    switchLedState();
+    digitalWrite(led, ledState);
   }
 }
 
 void switchLedState() {
   if(ledState == LOW) {
     ledState = HIGH;
-  } else {
+  } 
+  else {
     ledState = LOW;
   }
 }
@@ -125,41 +128,41 @@ void switchLedState() {
 
 void setMotor01(int motorValue) {
   motor01 = motorValue;
-  sendSerialMessage("Setting motor01 to: " + motorValue);
+  sendSerialMessage("Setting motor01 to: " + String(motor01));
 }
 
 void setMotor02(int motorValue) {
   motor02 = motorValue;
-  sendSerialMessage("Setting motor02 to: " + motorValue);
+  sendSerialMessage("Setting motor02 to: " + String(motor02));
 }
 
 void setServo01(int servoValue) {
   servo01 = servoValue;
-  sendSerialMessage("Setting servo01 to: " + servoValue);
+  sendSerialMessage("Setting servo01 to: " + String(servo01));
 }
 
 void setServo02(int servoValue) {
   servo02 = servoValue;
-  sendSerialMessage("Setting servo02 to: " + servoValue);
+  sendSerialMessage("Setting servo02 to: " + String(servo02));
 }
 
 /* ***********************************************************************************************
-                       _       _                  _       _                  _       _ 
-         ___  ___ _ __(_) __ _| |   ___  ___ _ __(_) __ _| |   ___  ___ _ __(_) __ _| |
-        / __|/ _ \ '__| |/ _` | |  / __|/ _ \ '__| |/ _` | |  / __|/ _ \ '__| |/ _` | |
-        \__ \  __/ |  | | (_| | |  \__ \  __/ |  | | (_| | |  \__ \  __/ |  | | (_| | |
-        |___/\___|_|  |_|\__,_|_|  |___/\___|_|  |_|\__,_|_|  |___/\___|_|  |_|\__,_|_|
-     
-
-************************************************************************************************ */
+                _       _                  _       _                  _       _ 
+  ___  ___ _ __(_) __ _| |   ___  ___ _ __(_) __ _| |   ___  ___ _ __(_) __ _| |
+ / __|/ _ \ '__| |/ _` | |  / __|/ _ \ '__| |/ _` | |  / __|/ _ \ '__| |/ _` | |
+ \__ \  __/ |  | | (_| | |  \__ \  __/ |  | | (_| | |  \__ \  __/ |  | | (_| | |
+ |___/\___|_|  |_|\__,_|_|  |___/\___|_|  |_|\__,_|_|  |___/\___|_|  |_|\__,_|_|
+ 
+ 
+ ************************************************************************************************ */
 
 const String COMMAND_START = "CMD";
 const String INIT_START = "INIT";
 const char   COMMAND_SEPARATOR = ',';
 const char   DATA_SEPARATOR = ':';
 
-const String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED";
 const String UPDATE_RATE = "UPDATE_RATE";
+const String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED";
 
 const String BLINK = "BLINK";
 const String MOTOR_01 = "MOTOR_01";
@@ -186,7 +189,8 @@ void serialEvent() {
     if (inChar == '\n') {
       serialRouter(serialString);
       serialString = "";
-    } else {
+    } 
+    else {
       // append inChar to the serialString
       serialString += inChar;
     }
@@ -194,7 +198,14 @@ void serialEvent() {
 }
 
 void serialRouter(String serialString) {
-  if( serialString.startsWith( COMMAND_START ) ) {
+  if ( serialString.startsWith( INIT_START ) ) {
+    if( serialString.length() > INIT_START.length() ) {
+      String initPlusSeparator = INIT_START + COMMAND_SEPARATOR;
+      String initCommand = serialString.substring( initPlusSeparator.length() );
+      
+      initStringHandler( initCommand );
+    }
+  } else if( serialString.startsWith( COMMAND_START ) ) {
 
     // Update the variable that holds the time of last update
     resetLastUpdate();
@@ -204,10 +215,43 @@ void serialRouter(String serialString) {
     if( serialString.length() > COMMAND_START.length() ){
       String commandPlusSeparator = COMMAND_START + COMMAND_SEPARATOR;
       String commands = serialString.substring( commandPlusSeparator.length() );
+      
       commandStringHandler( commands );
     }
   }
 }
+
+/* ********************************************************************************************* */
+
+// This method will handle init strings which will take the following form:
+// UPDATE_RATE:10
+// MISSED_UPDATES_ALLOWED:3
+// Note that init commands will only be transmitted one at a time.  We should
+// never encounter multiple init statements in a single init string.
+void initStringHandler(String initString) {
+  String initCommand = getCommandName(initString);
+  int initValue = getCommandValue(initString);
+  
+  if( initCommand.equals( UPDATE_RATE ) ) {
+    sendSerialMessage("UPDATE RATE received: " + String(initValue) );
+  } else if ( initCommand.equals( MISSED_UPDATES_ALLOWED ) ) {
+    sendSerialMessage("MISSED_UPDATES_ALLOWED received: " + String(initValue) );
+  } else {
+    sendSerialMessage( "Unrecognized init command: " + initCommand );
+  }
+}
+
+void updateRateInitHandler(int initialUpdateRate) {
+  updateRate = initialUpdateRate;
+  sendSerialMessage("Initializing Update Frequency to: " + String(initialUpdateRate));
+}
+
+void missedUpdatesAllowedInitHandler(int initialMissedUpdatesAllowed ) {
+  missedUpdatesAllowed = initialMissedUpdatesAllowed;
+  sendSerialMessage("Initializing Allowed Missed Updates to: " + String(initialMissedUpdatesAllowed));
+}
+
+/* ********************************************************************************************* */
 
 // This'll handle command strings which might look a little something like this:
 // BLINK:1000
@@ -216,50 +260,44 @@ void serialRouter(String serialString) {
 void commandStringHandler(String commandString) {
 
   do {
-    
+
     String command = "";
     int commandSeparatorIndex = commandString.indexOf( COMMAND_SEPARATOR );
-    
+
     if( commandSeparatorIndex > 0 ) {
       command = commandString.substring( 0, commandSeparatorIndex );
       commandString = commandString.substring( (commandSeparatorIndex + 1), commandString.length() );
-    } else {
+    } 
+    else {
       command = commandString;
       commandString = "";
     }
 
     commandHandler(command);
-    
-  } while( commandString.length() > 0 );
+
+  } 
+  while( commandString.length() > 0 );
 }
 
 // This'll handle individual commands with a command name and a value separated
 // by the DATA_SEPARATOR character (e.g. BLINK:1000, MOTOR_01:255, etc.)
 void commandHandler(String commandString) {
-  int dataSeparatorIndex = commandString.indexOf( DATA_SEPARATOR );
-  String command = commandString.substring(0, dataSeparatorIndex );
-  String value = commandString.substring(dataSeparatorIndex + 1, commandString.length());  
-  
-  int intValue = strToInt(value);
-  
+  String command = getCommandName(commandString);
+  int value = getCommandValue(commandString);
+
   if( command.equals(BLINK) ) {
-    sendSerialMessage("command = BLINK");
-    blinkHandler(intValue);
-  } else if ( command.equals(MOTOR_01) ) {
-    sendSerialMessage("command = MOTOR_01");
-    motor01Handler(intValue);
-  } else if ( command.equals(MOTOR_02) ) {
-    sendSerialMessage("command = MOTOR_02");
-    motor02Handler(intValue);
-  } else if ( command.equals(SERVO_01) ) {
-    sendSerialMessage("command = SERVO_01");
-    servoO1Handler(intValue); 
-  } else if ( command.equals(SERVO_02) ) {
-    sendSerialMessage("command = SERVO_02");
-    servo02Handler(intValue);
-  } else {
-    sendSerialMessage( "Unrecognized command: " + value );
-  }
+     blinkHandler(value);
+   } else if ( command.equals(MOTOR_01) ) {
+     motor01Handler(value);
+   } else if ( command.equals(MOTOR_02) ) {
+     motor02Handler(value);
+   } else if ( command.equals(SERVO_01) ) {
+     servoO1Handler(value); 
+   } else if ( command.equals(SERVO_02) ) {
+     servo02Handler(value);
+   } else {
+     sendSerialMessage( "Unrecognized command: " + command );
+   }
 }
 
 void blinkHandler(int blinkValue) {
@@ -282,6 +320,21 @@ void servo02Handler(int servo02Value) {
   setServo02(servo02Value);
 }
 
+// A command will be of the format NAME:VALUE.  This method
+// returns the NAME portion of the command.
+String getCommandName(String command) {
+  int dataSeparatorIndex = command.indexOf( DATA_SEPARATOR );
+  return command.substring(0, dataSeparatorIndex );
+}
+
+// A command will be of the format NAME:VALUE.  This method returns 
+// the VALUE portion of the command parsed into an integer value.
+int getCommandValue(String command) {
+  int dataSeparatorIndex = command.indexOf( DATA_SEPARATOR );
+  String value = command.substring(dataSeparatorIndex + 1, command.length());
+  return strToInt(value);
+}
+
 // This method will attempt to turn a string representation of an
 // integer into an actual integer.  This method will return an
 // integer value of zero if the string length is zero, if the string
@@ -289,11 +342,11 @@ void servo02Handler(int servo02Value) {
 // value actually represents the integer value zero.
 int strToInt(String intString) {
   int newInt = 0;
-  
+
   if( intString.length() > 0 ) {
     newInt = intString.toInt();
   }
-  
+
   return newInt;
 }
 
@@ -302,4 +355,5 @@ void sendSerialMessage(String message) {
   Serial.println(message);
   Serial.flush();
 } 
+
 

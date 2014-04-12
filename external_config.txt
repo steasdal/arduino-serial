@@ -3,21 +3,32 @@ serial.baudrate = 9600
 serial.databits = 8
 serial.parity = "none"
 serial.stopbits = 1
-serial.updatefrequency = 5
+serial.updatefrequency = 16
+serial.maxmissedupdates = 8
 
 commands {
     blink {
         name = "BLINK"
-        value = 150
+        value = 750
     }
 
     motor01 {
         name = "MOTOR_01"
-        value = 100
+        value = 0
     }
 
     motor02 {
         name = "MOTOR_02"
-        value = 100
+        value = 0
+    }
+
+    servo01 {
+        name = "SERVO_01"
+        value = 0
+    }
+
+    servo02 {
+        name = "SERVO_02"
+        value = 0
     }
 }
