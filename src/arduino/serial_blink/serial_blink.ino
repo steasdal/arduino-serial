@@ -233,9 +233,9 @@ void initStringHandler(String initString) {
   int initValue = getCommandValue(initString);
   
   if( initCommand.equals( UPDATE_RATE ) ) {
-    sendSerialMessage("UPDATE RATE received: " + String(initValue) );
+    updateRateInitHandler( initValue );
   } else if ( initCommand.equals( MISSED_UPDATES_ALLOWED ) ) {
-    sendSerialMessage("MISSED_UPDATES_ALLOWED received: " + String(initValue) );
+    missedUpdatesAllowedInitHandler( initValue );
   } else {
     sendSerialMessage( "Unrecognized init command: " + initCommand );
   }
