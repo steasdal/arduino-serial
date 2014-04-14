@@ -1,3 +1,5 @@
+#include <Servo.h> 
+
 /* ******* INIT DEFAULTS ****** */
 
 const int MISSED_UPDATES_ALLOWED_DEFAULT = 5;
@@ -6,8 +8,8 @@ const int UPDATE_RATE_DEFAULT = 10;
 const int BLINK_INIT_DEFAULT = 1000;
 const int MOTOR_01_INIT_DEFAULT = 0;
 const int MOTOR_02_INIT_DEFAULT = 0;
-const int SERVO_01_INIT_DEFAULT = 0;
-const int SERVO_02_INIT_DEFAULT = 0;
+const int SERVO_01_INIT_DEFAULT = 90;
+const int SERVO_02_INIT_DEFAULT = 90;
 
 /* ******** INIT VALUES ******** */
 
@@ -28,8 +30,8 @@ boolean connectionLive = false;         // Is this connection currently live?
 int blinkInterval = blinkIntervalInit;
 int motor01 = motor01Init;
 int motor02 = motor02Init;
-int servo01 = servo01Init;
-int servo02 = servo02Init;
+Servo servo01;
+Servo servo02;
 
 /* ***** BLINK VARIABLES ****** */
 
@@ -40,8 +42,15 @@ const String BLINK_INTERVAL_FLAG= "B";   // Serial messages that start with this
 
 /* ***************************** */
 
+
 void setup() {                
   pinMode(led, OUTPUT);   
+  
+  servo01.attach(9);
+  servo01.write(servo01Init);
+  servo02.attach(10);
+  servo02.write(servo02Init);
+  
   Serial.begin(9600);  
 }
 
@@ -137,13 +146,13 @@ void setMotor02(int motorValue) {
 }
 
 void setServo01(int servoValue) {
-  servo01 = servoValue;
-  sendSerialMessage("Setting servo01 to: " + String(servo01));
+  servo01.write( constrain(servoValue, 0, 180) );
+  sendSerialMessage("Setting servo01 to: " + String(servoValue));
 }
 
 void setServo02(int servoValue) {
-  servo02 = servoValue;
-  sendSerialMessage("Setting servo02 to: " + String(servo02));
+  servo02.write( constrain(servoValue, 0, 180) );
+  sendSerialMessage("Setting servo02 to: " + String(servoValue));
 }
 
 /* ***********************************************************************************************
