@@ -1,15 +1,15 @@
-serial.portname = "COM3"
-serial.baudrate = 9600
+serial.portname = "/dev/tty.usbmodemfd121"
+serial.baudrate = 19200
 serial.databits = 8
 serial.parity = "none"
 serial.stopbits = 1
 serial.updatefrequency = 10
-serial.maxmissedupdates = 10
+serial.maxmissedupdates = 5
 
 commands {
     blink {
         name = "BLINK"
-        value = 750
+        value = 3000
     }
 
     motor01 {
@@ -24,11 +24,11 @@ commands {
 
     servo01 {
         name = "SERVO_01"
-        value = 0
+        value = 90
     }
 
     servo02 {
         name = "SERVO_02"
-        value = 0
+        value = 90
     }
 }

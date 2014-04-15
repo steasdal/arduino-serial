@@ -25,6 +25,19 @@ class CommandBuilder {
         return INIT_START + COMMAND_SEPARATOR + initName + DATA_SEPARATOR + initValue + NEWLINE
     }
 
+    public static Collection<String> buildCommandInitStrings(ArduinoSerialConfigImpl config) {
+        Set<String> commandInitStrings = new HashSet<String>()
+
+        synchronized( config.getCommands() ) {
+            config.getCommands().each { String key, ArduinoSerialCommand command ->
+                String commandInitString = INIT_START + COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.initialValue.toString() + NEWLINE
+                commandInitStrings.add commandInitString
+            }
+        }
+
+        return commandInitStrings
+    }
+
     public static String buildUpdateString(ArduinoSerialConfigImpl config) {
         StringBuffer stringBuffer = new StringBuffer(COMMAND_START)
 

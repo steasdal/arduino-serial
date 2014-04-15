@@ -181,7 +181,6 @@ public class Main {
         ( input =~ UPDATE ).each { match, command, value ->
             try {
                 connection.updateCommand( command, Integer.parseInt(value) )
-                consoleWriteLn("${command} command updated to ${value}")
             } catch ( NumberFormatException exception ) {
                 consoleWriteLn("Unable to parse command value ${value} to an integer: ${exception.getMessage()}")
             } catch ( ArduinoSerialUnknownCommandException exception ) {

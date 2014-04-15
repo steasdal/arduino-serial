@@ -100,9 +100,13 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     void sendInitializationStrings() {
         String updateFrequencyInitString = CommandBuilder.buildUpdateFrequencyInitString(arduinoSerialConfigImpl)
         String missedUpdatesAllowedInitString = CommandBuilder.buildMissedUpdatesAllowedInitString(arduinoSerialConfigImpl)
+        Collection<String> commandInitStrings = CommandBuilder.buildCommandInitStrings(arduinoSerialConfigImpl)
 
         syncronizedWriteBytes(updateFrequencyInitString.getBytes())
         syncronizedWriteBytes(missedUpdatesAllowedInitString.getBytes())
+        commandInitStrings.each { String command ->
+            syncronizedWriteBytes(command.getBytes())
+        }
     }
 
     void configureAndStartDataUpdater() {

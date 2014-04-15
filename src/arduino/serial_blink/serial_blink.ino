@@ -1,11 +1,14 @@
 #include <Servo.h> 
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+#include "utility/Adafruit_PWMServoDriver.h"
 
 /* ******* INIT DEFAULTS ****** */
 
 const int MISSED_UPDATES_ALLOWED_DEFAULT = 5;
 const int UPDATE_RATE_DEFAULT = 10;
 
-const int BLINK_INIT_DEFAULT = 1000;
+const int BLINK_INIT_DEFAULT = 250;
 const int MOTOR_01_INIT_DEFAULT = 0;
 const int MOTOR_02_INIT_DEFAULT = 0;
 const int SERVO_01_INIT_DEFAULT = 90;
@@ -27,13 +30,20 @@ int servo02Init = SERVO_02_INIT_DEFAULT;
 unsigned long lastUpdate = 0;           // The last time an update was received
 boolean connectionLive = false;         // Is this connection currently live?
 
-int blinkInterval = blinkIntervalInit;
-int motor01 = motor01Init;
-int motor02 = motor02Init;
+/* ****** MOTOR VARIABLES ****** */
+
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+Adafruit_DCMotor *motor01 = AFMS.getMotor(1);
+Adafruit_DCMotor *motor02 = AFMS.getMotor(2);
+
+/* ****** SERVO VARIABLES ****** */
+
 Servo servo01;
 Servo servo02;
 
 /* ***** BLINK VARIABLES ****** */
+
+int blinkInterval = blinkIntervalInit;
 
 int led = 13;                            // This is the pin on which we'll be blinking an LED
 int ledState = LOW;                      // The current LED state (LOW or HIGH)
@@ -42,16 +52,17 @@ const String BLINK_INTERVAL_FLAG= "B";   // Serial messages that start with this
 
 /* ***************************** */
 
-
 void setup() {                
   pinMode(led, OUTPUT);   
+  
+  AFMS.begin();
   
   servo01.attach(9);
   servo01.write(servo01Init);
   servo02.attach(10);
   servo02.write(servo02Init);
   
-  Serial.begin(9600);  
+  Serial.begin(19200);  
 }
 
 void loop() {
@@ -135,16 +146,6 @@ void switchLedState() {
 
 /* ********************************************************************************************* */
 
-void setMotor01(int motorValue) {
-  motor01 = motorValue;
-  sendSerialMessage("Setting motor01 to: " + String(motor01));
-}
-
-void setMotor02(int motorValue) {
-  motor02 = motorValue;
-  sendSerialMessage("Setting motor02 to: " + String(motor02));
-}
-
 void setServo01(int servoValue) {
   servo01.write( constrain(servoValue, 0, 180) );
   sendSerialMessage("Setting servo01 to: " + String(servoValue));
@@ -153,6 +154,31 @@ void setServo01(int servoValue) {
 void setServo02(int servoValue) {
   servo02.write( constrain(servoValue, 0, 180) );
   sendSerialMessage("Setting servo02 to: " + String(servoValue));
+}
+
+void setMotor01(int motorValue) {
+  setMotorSpeed(motor01, motorValue);
+  sendSerialMessage("Setting motor01 to: " + String(motorValue));
+}
+
+void setMotor02(int motorValue) {
+  setMotorSpeed(motor02, motorValue);
+  sendSerialMessage("Setting motor02 to: " + String(motorValue));
+}
+
+void setMotorSpeed(Adafruit_DCMotor *motor, int speed) {
+  speed = constrain(speed, -255, 255);
+ 
+  if( speed == 0 ) {
+    motor->run(RELEASE);
+  } else if( speed > 0 ) {
+    motor->setSpeed( speed );
+    motor->run( FORWARD );
+  } else {
+    speed = abs( speed );
+    motor->setSpeed( speed );
+    motor->run( BACKWARD );
+  }
 }
 
 /* ***********************************************************************************************
@@ -245,6 +271,16 @@ void initStringHandler(String initString) {
     updateRateInitHandler( initValue );
   } else if ( initCommand.equals( MISSED_UPDATES_ALLOWED ) ) {
     missedUpdatesAllowedInitHandler( initValue );
+  } else if( initCommand.equals( BLINK ) ) {
+    setBlinkIntervalInit( initValue );
+  } else if( initCommand.equals( MOTOR_01 ) ) {
+    setMotor01Init( initValue );
+  } else if( initCommand.equals( MOTOR_02 ) ) {
+    setMotor02Init( initValue );
+  } else if( initCommand.equals( SERVO_01 ) ) {
+    setServo01Init( initValue );
+  } else if( initCommand.equals( SERVO_02 ) ) {
+    setServo02Init( initValue );
   } else {
     sendSerialMessage( "Unrecognized init command: " + initCommand );
   }
@@ -259,6 +295,32 @@ void missedUpdatesAllowedInitHandler(int initialMissedUpdatesAllowed ) {
   missedUpdatesAllowed = initialMissedUpdatesAllowed;
   sendSerialMessage("Initializing Allowed Missed Updates to: " + String(initialMissedUpdatesAllowed));
 }
+
+void setBlinkIntervalInit(int initValue) {
+  blinkIntervalInit = initValue;
+  sendSerialMessage("Initializing Blink Interval to: " + String(initValue));
+}
+
+void setMotor01Init(int initValue) {
+  motor01Init = constrain(initValue, -255, 255);
+  sendSerialMessage("Initializing motor 01 to: " + String(initValue));
+}
+
+void setMotor02Init(int initValue) {
+  motor02Init = constrain(initValue, -255, 255);
+  sendSerialMessage("Initializing motor 02 to: " + String(initValue));
+}
+
+void setServo01Init(int initValue) {
+  servo01Init = constrain(initValue, 0, 180);
+  sendSerialMessage("Initializing servo 01 to: " + String(initValue));
+}
+
+void setServo02Init(int initValue) {
+  servo02Init = constrain(initValue, 0, 180);
+  sendSerialMessage("Initializing servo 02 to: " + String(initValue));
+}
+
 
 /* ********************************************************************************************* */
 
