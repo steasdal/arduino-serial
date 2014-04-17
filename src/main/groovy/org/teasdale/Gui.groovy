@@ -6,12 +6,12 @@ import org.teasdale.api.ArduinoSerialConnection
 import org.teasdale.api.ArduinoSerialFactory
 import org.teasdale.api.ArduinoSerialListener
 
+import javax.swing.BoxLayout
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JSlider
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
-import java.awt.BorderLayout
 
 class Gui {
     public static final String EXTERNAL_CONFIG_FILE = "external_config.txt"
@@ -24,7 +24,7 @@ class Gui {
         def swingBuilder = new SwingBuilder()
 
         def makeControlPanel = {
-            swingBuilder.panel(constraints: BorderLayout.NORTH){
+            swingBuilder.panel(){
                 button(text:"Start", actionPerformed:{
                     start()
                     statusLabel.text = "connection open"
@@ -37,7 +37,7 @@ class Gui {
         }
 
         def makeLabelPanel = {
-            swingBuilder.panel(constraints: BorderLayout.CENTER){
+            swingBuilder.panel(){
                 statusLabel = swingBuilder.label(
                         text: "not open",
                         horizontalAlignment: JLabel.CENTER,
@@ -47,17 +47,50 @@ class Gui {
         }
 
         def makeSliderPanel = {
-            swingBuilder.panel(constraints: BorderLayout.SOUTH){
-                swingBuilder.label(
-                        text: "Blink Interval",
-                        horizontalAlignment: JLabel.CENTER,
-                        verticalAlignment: JLabel.TOP
-                )
-                swingBuilder.slider(
-                        minimum: 25,
-                        maximum: 2500,
-                        minorTickSpacing: 25
-                ).addChangeListener(new SliderListener())
+            swingBuilder.panel(){
+                boxLayout(axis: BoxLayout.PAGE_AXIS)
+
+                swingBuilder.panel(){
+                    swingBuilder.label(
+                            text: "Blink Interval",
+                            horizontalAlignment: JLabel.CENTER,
+                            verticalAlignment: JLabel.TOP
+                    )
+                    swingBuilder.slider(
+                            minimum: 25,
+                            maximum: 2500,
+                            value: ((2500-25)/2),
+                            minorTickSpacing: 25
+                    ).addChangeListener(new BlinkSliderListener())
+                }
+
+                swingBuilder.panel(){
+                    swingBuilder.label(
+                            text: "Servo 01",
+                            horizontalAlignment: JLabel.CENTER,
+                            verticalAlignment: JLabel.TOP
+                    )
+                    swingBuilder.slider(
+                            minimum: 0,
+                            maximum: 180,
+                            value: 90,
+                            minorTickSpacing: 1
+                    ).addChangeListener(new Servo01SliderListener())
+                }
+
+                swingBuilder.panel(){
+                    swingBuilder.label(
+                            text: "Servo 02",
+                            horizontalAlignment: JLabel.CENTER,
+                            verticalAlignment: JLabel.TOP
+                    )
+                    swingBuilder.slider(
+                            minimum: 0,
+                            maximum: 180,
+                            value: 90,
+                            minorTickSpacing: 1
+                    ).addChangeListener(new Servo02SliderListener())
+                }
             }
         }
 
@@ -66,8 +99,10 @@ class Gui {
                 defaultCloseOperation:JFrame.DISPOSE_ON_CLOSE,
                 size:[400,300],
                 show:true){
+            boxLayout(axis: BoxLayout.PAGE_AXIS)
             makeControlPanel()
             makeLabelPanel()
+            vglue()
             makeSliderPanel()
         }
     }
@@ -108,19 +143,39 @@ class Gui {
     static class Listener implements ArduinoSerialListener {
         @Override
         void stringReceived(String string) {
-            // Using println here because the console tends to hold
-            // onto output instead of displaying it immediately
             println string
         }
     }
 
-    static class SliderListener implements ChangeListener {
+    static abstract class SliderListener implements ChangeListener {
         @Override
         void stateChanged(ChangeEvent changeEvent) {
             if( connection && changeEvent.getSource() instanceof JSlider) {
                 int sliderValue = ((JSlider) changeEvent.getSource()).value
-                connection.updateCommand("BLINK", sliderValue);
+                update(sliderValue);
             }
         }
+
+        abstract void update(int value);
     }
+
+    static class BlinkSliderListener extends SliderListener {
+        @Override void update(int value) {
+            connection.updateCommand("BLINK", value)
+        }
+    }
+
+    static class Servo01SliderListener extends SliderListener {
+        @Override void update(int value) {
+            connection.updateCommand("SERVO_01", value)
+        }
+    }
+
+    static class Servo02SliderListener extends SliderListener {
+        @Override void update(int value) {
+            connection.updateCommand("SERVO_02", value)
+        }
+    }
+
+
 }
