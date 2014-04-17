@@ -249,6 +249,8 @@ public interface ArduinoSerialConfig {
      */
     public void setPortname(String newPortname);
 
+    public String getPortname();
+
     /**
      * Set the baud rate of the serial connection
      * <br><br>
@@ -257,6 +259,8 @@ public interface ArduinoSerialConfig {
      * @param newBaudrate The desired baud rate
      */
     public void setBaudrate(Baudrate newBaudrate);
+
+    public Baudrate getBaudrate();
 
     /**
      * Set the data bits of the serial connection
@@ -267,6 +271,8 @@ public interface ArduinoSerialConfig {
      */
     public void setDatabits(Databits newDatabits);
 
+    public Databits getDatabits();
+
     /**
      * Set the parity of the serial connection
      * <br><br>
@@ -276,6 +282,8 @@ public interface ArduinoSerialConfig {
      */
     public void setParity(Parity newParity);
 
+    public Parity getParity();
+
     /**
      * Set the stop bits of the serial connection
      * <br><br>
@@ -284,6 +292,8 @@ public interface ArduinoSerialConfig {
      * @param newStopbits The desired stop bits
      */
     public void setStopbits(Stopbits newStopbits);
+
+    public Stopbits getStopbits();
 
     /**
      * Set the update frequency (in updates per second) - must be between
@@ -295,6 +305,8 @@ public interface ArduinoSerialConfig {
      */
     public void setUpdateFrequency(int updateFrequency);
 
+    public int getUpdateFrequency();
+
     /**
      * Set the maximum number of missed updates allowed before all
      * commands are reset to their initial values - must be between
@@ -303,6 +315,8 @@ public interface ArduinoSerialConfig {
      * @param missedUpdatesAllowed The desired number of missed updates allowed
      */
     public void setMissedUpdatesAllowed(int missedUpdatesAllowed);
+
+    public int getMissedUpdatesAllowed();
 
     /**
      * Register a command.
@@ -313,6 +327,8 @@ public interface ArduinoSerialConfig {
      *                     if the serial connection is lost.
      */
     public void registerCommand(String commandName, int initialValue);
+
+    public String[] getRegisteredCommands();
 
     /**
      * Register an instance of {@link ArduinoSerialListener} to receive

@@ -9,7 +9,6 @@ import org.teasdale.throwable.ArduinoSerialUnknownCommandException
 public class Main {
 
     public static Console console = null
-    public static def externalConfig = null
     public static final String EXTERNAL_CONFIG_FILE = "external_config.txt"
 
     public static ArduinoSerialFactory factory = ArduinoSerialFactory.getInstance()
@@ -27,8 +26,6 @@ public class Main {
 
     public static void main(String[] args) {
         getNewConsoleExitIfNull()
-
-        loadConfigFile()
 
         consoleWriteLn('Please enter a command (type "help" for available commands)')
         consoleWriteLn()
@@ -74,17 +71,6 @@ public class Main {
         }
     }
 
-    private static void loadConfigFile() {
-        File configFile = new File(EXTERNAL_CONFIG_FILE)
-
-        if(configFile.exists()) {
-            consoleWriteLn("Loading configuration file ${EXTERNAL_CONFIG_FILE}")
-            externalConfig = new ConfigSlurper().parse( configFile.text )
-        } else {
-            consoleWriteLn("No external configuration file found")
-        }
-    }
-
     private static void start() {
         ArduinoSerialConfig config = getConfig()
         config.registerListener(new Listener())
@@ -98,76 +84,11 @@ public class Main {
     }
 
     private static ArduinoSerialConfig getConfig() {
-        ArduinoSerialConfig config = factory.getArduinoSerialConfig()
-
-        if(externalConfig != null) {
-            def portname = externalConfig.serial.portname
-            def baudrate = externalConfig.serial.baudrate
-            def databits = externalConfig.serial.databits
-            def stopbits = externalConfig.serial.stopbits
-            def parity = externalConfig.serial.parity
-            def updatefrequency = externalConfig.serial.updatefrequency
-            def maxmissedupdates = externalConfig.serial.maxmissedupdates
-            def commands = externalConfig.commands
-
-            if( portname ) { config.setPortname( portname ) }
-
-            if( baudrate ) {
-                try {
-                    config.setBaudrate( ArduinoSerialConfig.Baudrate.parse( baudrate ) )
-                } catch( Throwable throwable ) {
-                    consoleWriteLn("Unable to parse baudrate value from config file: ${throwable.getMessage()}")
-                }
-            }
-
-            if( databits ) {
-                try {
-                    config.setDatabits( ArduinoSerialConfig.Databits.parse( databits ) )
-                } catch( Throwable throwable ) {
-                    consoleWriteLn("Unable to parse databits value from config file: ${throwable.getMessage()}")
-                }
-            }
-
-            if( stopbits ) {
-                try {
-                    config.setStopbits( ArduinoSerialConfig.Stopbits.parse( stopbits ) )
-                } catch( Throwable throwable ) {
-                    consoleWriteLn("Unable to parse stopbits value from config file: ${throwable.getMessage()}")
-                }
-            }
-
-            if( parity ) {
-                try {
-                    config.setParity( ArduinoSerialConfig.Parity.parse( parity ) )
-                } catch( Throwable throwable ) {
-                    consoleWriteLn("Unable to parse parity value from config file: ${throwable.getMessage()}")
-                }
-            }
-
-            if( updatefrequency ) {
-                try {
-                    config.setUpdateFrequency( updatefrequency )
-                } catch( Throwable throwable ) {
-                    consoleWriteLn("Unable to set update frequency to ${updatefrequency}: ${throwable.getMessage()}")
-                }
-            }
-
-            if( maxmissedupdates ) {
-                try {
-                    config.setMissedUpdatesAllowed( maxmissedupdates )
-                } catch ( Throwable throwable ) {
-                    consoleWriteLn("Unable to set allowed missed updates to ${maxmissedupdates}: ${throwable.getMessage()}")
-                }
-            }
-
-            if( commands ) {
-                commands.values().each { command ->
-                    config.registerCommand( command.name, command.value )
-                }
-            }
+        try {
+            return factory.getArduinoSerialConfig(EXTERNAL_CONFIG_FILE)
+        } catch (Throwable throwable) {
+            consoleWriteLn(throwable.getMessage())
         }
-
-        return config
     }
 
     private static void transmit(String input) {

@@ -31,6 +31,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         baudrate = newBaudrate
     }
 
+    @Override
     public Baudrate getBaudrate() { return baudrate }
 
     @Override
@@ -38,6 +39,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         databits = newDatabits
     }
 
+    @Override
     public Databits getDatabits() { return databits }
 
     @Override
@@ -45,6 +47,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         parity = newParity
     }
 
+    @Override
     public Parity getParity() { return parity }
 
     @Override
@@ -52,6 +55,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         stopbits = newStopbits
     }
 
+    @Override
     public Stopbits getStopbits() { return stopbits }
 
     @Override
@@ -60,6 +64,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         this.updateFrequency = updateFrequency
     }
 
+    @Override
     public int getUpdateFrequency() {
         return updateFrequency
     }
@@ -70,6 +75,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         this.missedUpdatesAllowed = missedUpdatesAllowed;
     }
 
+    @Override
     public int getMissedUpdatesAllowed() {
         return missedUpdatesAllowed
     }
@@ -82,6 +88,15 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     }
 
     public Map<String, ArduinoSerialCommand> getCommands() { return commands }
+
+    @Override
+    public String[] getRegisteredCommands() {
+        String[] commandArray = new String[0];
+        commands.each { String key, ArduinoSerialCommand command ->
+            commandArray << command.name
+        }
+        return commandArray
+    }
 
     @Override
     void registerListener(ArduinoSerialListener listener) {

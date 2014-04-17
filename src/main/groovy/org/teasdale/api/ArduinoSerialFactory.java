@@ -2,6 +2,7 @@ package org.teasdale.api;
 
 import org.teasdale.impl.ArduinoSerialConfigImpl;
 import org.teasdale.impl.ArduinoSerialConnectionImpl;
+import org.teasdale.util.ConfigFileProcessor;
 
 /**
  * A singleton factory for obtaining concrete instances of
@@ -24,6 +25,16 @@ public class ArduinoSerialFactory {
     public ArduinoSerialConfig getArduinoSerialConfig() {
         return new ArduinoSerialConfigImpl();
     }
+
+    /**
+     * @param configFileName The name and path of a configuration file to parse
+     *                       for values to populate a {@link ArduinoSerialConfig}
+     *                       object.
+     * @return an instance of {@link ArduinoSerialConfig} with fields populated
+     * by values from a configuration file (in {@link groovy.util.ConfigSlurper}
+     * format).
+     */
+    public ArduinoSerialConfig getArduinoSerialConfig(String configFileName) { return ConfigFileProcessor.process(configFileName); }
 
     /**
      * @return an instance of {@link ArduinoSerialConnection} configured
