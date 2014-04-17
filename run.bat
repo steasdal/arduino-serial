@@ -1,0 +1,1 @@
+java -jar build\libs\arduino-serial.jar
