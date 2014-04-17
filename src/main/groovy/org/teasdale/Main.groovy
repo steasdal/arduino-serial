@@ -19,6 +19,7 @@ public class Main {
     public static final String SEND = /^/ + /send/ + /\s+/ + /(\w+)/ + /$/    /* "send", one or more whitespace characters, one or more word characters */
     public static final String UPDATE = /^/ + /update/ + /\s+/ + /(\w+)/ + /\s+/ + /(\d+)/ + /$/  /* "update", whitespace, command name, whitespace, command value */
     public static final String STATUS = /status/
+    public static final String GUI = /gui/
     public static final String HELP = /help/
     public static final String QUIT = /quit/
 
@@ -49,6 +50,9 @@ public class Main {
                     break
                 case ~STOP:
                     stop()
+                    break
+                case ~GUI:
+                    gui()
                     break
                 case ~HELP:
                     getHelp()
@@ -131,6 +135,11 @@ public class Main {
         consoleWriteLn()
     }
 
+    private static void gui() {
+        Gui gui = new Gui()
+        gui.show()
+    }
+
     private static void getHelp() {
         consoleWriteLn()
         printAvailableCommands()
@@ -171,6 +180,7 @@ public class Main {
         consoleWriteLn("stop - Attempt to stop the listener")
         consoleWriteLn("send <command> - Send a command to the Arduino")
         consoleWriteLn("update <command> <value> - Update a command value")
+        consoleWriteLn("gui - Open the GUI")
         consoleWriteLn("quit - Quit this interactive console")
     }
 
