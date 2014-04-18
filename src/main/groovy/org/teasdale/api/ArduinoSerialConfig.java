@@ -48,7 +48,7 @@ public interface ArduinoSerialConfig {
     public static final int MAXIMUM_UPDATE_FREQUENCY = 20;
 
     /**
-     * Default Missed Updates Allowed (8 mixxed updates)
+     * Default Missed Updates Allowed (8 missed updates)
      */
     public static final int DEFAULT_MISSED_UPDATES_ALLOWED = 4;
 
@@ -249,6 +249,9 @@ public interface ArduinoSerialConfig {
      */
     public void setPortname(String newPortname);
 
+    /**
+     * @return the current port name value
+     */
     public String getPortname();
 
     /**
@@ -260,6 +263,9 @@ public interface ArduinoSerialConfig {
      */
     public void setBaudrate(Baudrate newBaudrate);
 
+    /**
+     * @return the current badu rate value
+     */
     public Baudrate getBaudrate();
 
     /**
@@ -271,6 +277,9 @@ public interface ArduinoSerialConfig {
      */
     public void setDatabits(Databits newDatabits);
 
+    /**
+     * @return the current data bits value
+     */
     public Databits getDatabits();
 
     /**
@@ -282,6 +291,9 @@ public interface ArduinoSerialConfig {
      */
     public void setParity(Parity newParity);
 
+    /**
+     * @return the current parity value
+     */
     public Parity getParity();
 
     /**
@@ -293,6 +305,9 @@ public interface ArduinoSerialConfig {
      */
     public void setStopbits(Stopbits newStopbits);
 
+    /**
+     * @return the current stop bits value
+     */
     public Stopbits getStopbits();
 
     /**
@@ -305,6 +320,9 @@ public interface ArduinoSerialConfig {
      */
     public void setUpdateFrequency(int updateFrequency);
 
+    /**
+     * @return the current update frequency value
+     */
     public int getUpdateFrequency();
 
     /**
@@ -316,6 +334,9 @@ public interface ArduinoSerialConfig {
      */
     public void setMissedUpdatesAllowed(int missedUpdatesAllowed);
 
+    /**
+     * @return the current maximum number of missed udpates allowed
+     */
     public int getMissedUpdatesAllowed();
 
     /**
@@ -328,6 +349,10 @@ public interface ArduinoSerialConfig {
      */
     public void registerCommand(String commandName, int initialValue);
 
+    /**
+     * @return a String array containing the names of all currently
+     * registered commands.
+     */
     public String[] getRegisteredCommands();
 
     /**

@@ -16,7 +16,6 @@ public class Main {
 
     public static final String START = /start/
     public static final String STOP = /stop/
-    public static final String SEND = /^/ + /send/ + /\s+/ + /(\w+)/ + /$/    /* "send", one or more whitespace characters, one or more word characters */
     public static final String UPDATE = /^/ + /update/ + /\s+/ + /(\w+)/ + /\s+/ + /(\d+)/ + /$/  /* "update", whitespace, command name, whitespace, command value */
     public static final String STATUS = /status/
     public static final String GUI = /gui/
@@ -38,9 +37,6 @@ public class Main {
             switch( input ) {
                 case ~START:
                     start()
-                    break
-                case ~SEND:
-                    transmit(input)
                     break
                 case ~UPDATE:
                     update(input)
@@ -92,13 +88,6 @@ public class Main {
             return factory.getArduinoSerialConfig(EXTERNAL_CONFIG_FILE)
         } catch (Throwable throwable) {
             consoleWriteLn(throwable.getMessage())
-        }
-    }
-
-    private static void transmit(String input) {
-        ( input =~ SEND ).each { match, command ->
-            String message = command + '\n'
-            connection.writeBytes( message.getBytes() )
         }
     }
 
@@ -178,7 +167,6 @@ public class Main {
         consoleWriteLn("status - Get the current status of the listener")
         consoleWriteLn("start - Attempt to start the listener")
         consoleWriteLn("stop - Attempt to stop the listener")
-        consoleWriteLn("send <command> - Send a command to the Arduino")
         consoleWriteLn("update <command> <value> - Update a command value")
         consoleWriteLn("gui - Open the GUI")
         consoleWriteLn("quit - Quit this interactive console")

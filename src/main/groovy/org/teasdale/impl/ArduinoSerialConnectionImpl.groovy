@@ -49,13 +49,6 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     @Override
-    void writeBytes(byte[] bytes) {
-        validateByteArray(bytes)
-        verifyWriteState()
-        syncronizedWriteBytes( bytes )
-    }
-
-    @Override
     public void updateCommand(String commandName, int value) {
         validateCommandName(commandName)
         verifyWriteState()

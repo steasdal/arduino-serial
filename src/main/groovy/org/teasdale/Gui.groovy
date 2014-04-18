@@ -10,15 +10,18 @@ import javax.swing.BoxLayout
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JSlider
+import javax.swing.JTextArea
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
+import javax.swing.text.DefaultCaret
+import java.awt.BorderLayout
 
 class Gui {
     public static final String EXTERNAL_CONFIG_FILE = "external_config.txt"
     public static ArduinoSerialFactory factory = ArduinoSerialFactory.getInstance()
     public static ArduinoSerialConnection connection = null
 
-    def statusLabel
+    JTextArea statusText
 
     public void show() {
         def swingBuilder = new SwingBuilder()
@@ -26,23 +29,11 @@ class Gui {
         def makeControlPanel = {
             swingBuilder.panel(){
                 button(text:"Start", actionPerformed:{
-                    start()
-                    statusLabel.text = "connection open"
+                    start(statusText)
                 })
                 button(text:"Stop", actionPerformed:{
-                    stop()
-                    statusLabel.text = "connection closed"
+                    stop(statusText)
                 })
-            }
-        }
-
-        def makeLabelPanel = {
-            swingBuilder.panel(){
-                statusLabel = swingBuilder.label(
-                        text: "not open",
-                        horizontalAlignment: JLabel.CENTER,
-                        verticalAlignment: JLabel.TOP
-                )
             }
         }
 
@@ -91,47 +82,87 @@ class Gui {
                             minorTickSpacing: 1
                     ).addChangeListener(new Servo02SliderListener())
                 }
+
+                swingBuilder.panel(){
+                    swingBuilder.label(
+                            text: "Motor 01",
+                            horizontalAlignment: JLabel.CENTER,
+                            verticalAlignment: JLabel.TOP
+                    )
+                    swingBuilder.slider(
+                            minimum: 0,
+                            maximum: 255,
+                            value: 0,
+                            minorTickSpacing: 5
+                    ).addChangeListener(new Motor01SliderListener())
+                }
+
+                swingBuilder.panel(){
+                    swingBuilder.label(
+                            text: "Motor 02",
+                            horizontalAlignment: JLabel.CENTER,
+                            verticalAlignment: JLabel.TOP
+                    )
+                    swingBuilder.slider(
+                            minimum: 0,
+                            maximum: 255,
+                            value: 0,
+                            minorTickSpacing: 5
+                    ).addChangeListener(new Motor02SliderListener())
+                }
+            }
+        }
+
+        def resultsPanel = {
+            swingBuilder.scrollPane(constraints: BorderLayout.CENTER){
+                statusText = textArea(
+                        rows:10,
+                        editable: false,
+                        autoscrolls: true
+                )
+                DefaultCaret caret = (DefaultCaret)statusText.getCaret();
+                caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
             }
         }
 
         swingBuilder.frame(
                 title:"Arduino Serial GUI",
                 defaultCloseOperation:JFrame.DISPOSE_ON_CLOSE,
-                size:[400,300],
+                size:[400,500],
                 show:true){
             boxLayout(axis: BoxLayout.PAGE_AXIS)
             makeControlPanel()
-            makeLabelPanel()
-            vglue()
             makeSliderPanel()
+            vglue()
+            resultsPanel()
         }
     }
 
     /* ***************************************************************************************** */
 
-    private static void start() {
-        ArduinoSerialConfig config = getConfig()
-        config.registerListener(new Listener())
+    private static void start(JTextArea results) {
+        ArduinoSerialConfig config = getConfig(results)
+        config.registerListener(new Listener(results))
 
         connection = factory.getArduinoSerialConnection(config)
         connection.open()
 
-        println "Connection Open"
+        results.append("Connection Open \n")
     }
 
-    private static ArduinoSerialConfig getConfig() {
+    private static ArduinoSerialConfig getConfig(JTextArea results) {
         try {
             return factory.getArduinoSerialConfig(EXTERNAL_CONFIG_FILE)
         } catch (Throwable throwable) {
-            println throwable.getMessage()
+            results.append(throwable.getMessage() + '\n')
         }
     }
 
-    private static void stop() {
+    private static void stop(JTextArea results) {
         connection.close()
         connection = null
 
-        println "Connection Closed"
+        results.append("Connection Closed \n")
     }
 
     /* ***************************************************************************************** */
@@ -141,9 +172,15 @@ class Gui {
      * via the {@link ArduinoSerialConfig#registerListener(org.teasdale.api.ArduinoSerialListener)} method.
      */
     static class Listener implements ArduinoSerialListener {
+        JTextArea results = null;
+
+        public Listener(JTextArea results) {
+            this.results = results
+        }
+
         @Override
         void stringReceived(String string) {
-            println string
+            results.append(string + '\n')
         }
     }
 
@@ -177,5 +214,15 @@ class Gui {
         }
     }
 
+    static class Motor01SliderListener extends SliderListener {
+        @Override void update(int value) {
+            connection.updateCommand("MOTOR_01", value)
+        }
+    }
 
+    static class Motor02SliderListener extends SliderListener {
+        @Override void update(int value) {
+            connection.updateCommand("MOTOR_02", value)
+        }
+    }
 }

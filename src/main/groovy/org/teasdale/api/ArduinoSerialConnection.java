@@ -20,17 +20,6 @@ public interface ArduinoSerialConnection {
     public void open();
 
     /**
-     * Write a series of bytes to the Arduino.  This method sends the byte
-     * array verbatim - it does no processing, appends no terminators, etc.
-     * <br><br>
-     * The {@link #open} method must be called once before attempting to
-     * call this method.
-     *
-     * @param bytes An array of bytes to write to the Arduino
-     */
-    public void writeBytes(byte[] bytes);
-
-    /**
      * Update the value of a previously registered command.  Once updated,
      * the command and value will be sent on the next transmission cycle.
      * <br><br>
