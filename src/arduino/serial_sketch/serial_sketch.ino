@@ -6,16 +6,9 @@
 #include <StandardCplusplus.h>
 #include <map>
 
-std::map<String, void(*)(int)> initHandlerMap;
-std::map<String, void(*)(int)> commandHandlerMap;
-
-void registerInitHandler(String initName, void(*initHandler)(int)) {
-  initHandlerMap.insert( std::pair<String, void(*)(int)> (initName, initHandler) );
-}
-
-void registerCommandHandler(String commandName, void(*commandHandler)(int)) {
-  commandHandlerMap.insert( std::pair<String, void(*)(int)> (commandName, commandHandler) );
-}
+#include "command_handlers.h"
+#include "util_functions.h"
+#include "serial_handler.h"
 
 /************************************************
  BLINK BLINK BLINK BLINK BLINK BLINK BLINK BLINK 
@@ -224,9 +217,9 @@ void registerCommandHandlers() {
   registerCommandHandler(MOTOR_02, setMotor02);
 }
 
-/**********************************************
- REINITIALIZE COMMANDS - REINITIALIZED COMMANDS
-***********************************************/
+/*********************************************
+ REINITIALIZE COMMANDS - REINITIALIZE COMMANDS
+**********************************************/
 void initializeCommands() {
   blinkInterval = blinkIntervalInit;
   setServo01(servo01Init);
@@ -253,6 +246,7 @@ void setup() {
   
   registerInitHandlers();
   registerCommandHandlers(); 
+  registerForUpdateNotifications(resetLastUpdate);
   
   sendSerialMessage("free SRAM: " + String( freeRam() ));
 }
@@ -261,187 +255,4 @@ void loop() {
   checkForUpdateExpiration();
   checkForBlink();
 }
-
-/**************************************************************************************************
- SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER
-**************************************************************************************************/
-
-const String COMMAND_START = "CMD";
-const String INIT_START = "INIT";
-const char   COMMAND_SEPARATOR = ',';
-const char   DATA_SEPARATOR = ':';
-
-String serialString = "";                // String that'll hold incoming serial data.
-boolean serialStringComplete = false;    // Set to true once an entire serial string is received.
-
-/*
- SerialEvent occurs whenever a new data comes in the
- hardware serial RX.  This routine is run between each
- time loop() runs, so using delay inside loop can delay
- response.  Multiple bytes of data may be available.
- */
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read(); 
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it.  Note
-    // that we're NOT appending the newline character.
-    if (inChar == '\n') {
-      serialRouter(serialString);
-      serialString = "";
-    } 
-    else {
-      // append inChar to the serialString
-      serialString += inChar;
-    }
-  }
-}
-
-void serialRouter(String serialString) {
-  if ( serialString.startsWith( INIT_START ) ) {
-    if( serialString.length() > INIT_START.length() ) {
-      String initPlusSeparator = INIT_START + COMMAND_SEPARATOR;
-      String initCommand = serialString.substring( initPlusSeparator.length() );
-      
-      initStringHandler( initCommand );
-    }
-  } else if( serialString.startsWith( COMMAND_START ) ) {
-
-    // Update the variable that holds the time of last update
-    resetLastUpdate();
-
-    // If there's something after COMMAND_START, 
-    // then we've got some actual update data!
-    if( serialString.length() > COMMAND_START.length() ){
-      String commandPlusSeparator = COMMAND_START + COMMAND_SEPARATOR;
-      String commands = serialString.substring( commandPlusSeparator.length() );
-      
-      commandStringHandler( commands );
-    }
-  }
-}
-
-/* ********************************************************************************************* */
-
-// This method will handle init strings which will take the following form:
-// UPDATE_RATE:10
-// MISSED_UPDATES_ALLOWED:3
-// Note that init commands will only be transmitted one at a time.  We should
-// never encounter multiple init statements in a single init string.
-void initStringHandler(String initString) {
-  String initName = getCommandName(initString);
-  int initValue = getCommandValue(initString);
-  
-  // Using initName as the key, lookup the corresponding
-  // init handler function in the initHandlerMap map and
-  // execute it passing initValue as the integer argument.
-  if( initHandlerMap.count( initName ) > 0 ) {
-    void(*initHandler)(int) = initHandlerMap[ initName ];
-    initHandler( initValue );
-  } else {
-    sendSerialMessage( "Unrecognized init command: " + initName );
-  }
-}
-
-/* ********************************************************************************************* */
-
-// This method will handle command strings which will typically look something like this:
-// BLINK:1000
-// BLINK:2500,MOTOR_01:255
-// BLINK:500,MOTOR_01:50,MOTOR_02:50,SERVO_01:75,SERVO_02:120
-void commandStringHandler(String commandString) {
-
-  do {
-
-    String command = "";
-    int commandSeparatorIndex = commandString.indexOf( COMMAND_SEPARATOR );
-
-    if( commandSeparatorIndex > 0 ) {
-      command = commandString.substring( 0, commandSeparatorIndex );
-      commandString = commandString.substring( (commandSeparatorIndex + 1), commandString.length() );
-    } 
-    else {
-      command = commandString;
-      commandString = "";
-    }
-
-    commandHandler(command);
-
-  } 
-  while( commandString.length() > 0 );
-}
-
-// This'll handle individual commands with a command name and a value separated
-// by the DATA_SEPARATOR character (e.g. BLINK:1000, MOTOR_01:255, etc.)
-void commandHandler(String commandString) {
-  String commandName = getCommandName(commandString);
-  int commandValue = getCommandValue(commandString);
-  
-  // Using commandName as the key, lookup the corresponding
-  // command handler function in the commandHandlerMap map and
-  // execute it passing commandValue as the integer argument.
-  if( commandHandlerMap.count( commandName ) > 0 ) {
-    void(*commandHandler)(int) = commandHandlerMap[ commandName ];
-    commandHandler( commandValue );
-  } else {
-    sendSerialMessage( "Unrecognized command: " + commandName );
-  }
-}
-
-// A command will be of the format NAME:VALUE.  This method
-// returns the NAME portion of the command.
-String getCommandName(String command) {
-  int dataSeparatorIndex = command.indexOf( DATA_SEPARATOR );
-  return command.substring(0, dataSeparatorIndex );
-}
-
-// A command will be of the format NAME:VALUE.  This method returns 
-// the VALUE portion of the command parsed into an integer value.
-int getCommandValue(String command) {
-  int dataSeparatorIndex = command.indexOf( DATA_SEPARATOR );
-  return strToInt( command.substring(dataSeparatorIndex + 1, command.length()) );
-}
-
-/******************************************************************************
- UTILITY FUNCTIONS - UTILITY FUNCTIONS - UTILITY FUNCTIONS - UTILITY FUNCTIONS
-******************************************************************************/
-
-// This method calculates the amount of space (free memory) between the heap and the stack.
-// The amount of memory returned does NOT include bits of fragmented memory in the heap.
-int freeRam () 
-{
-  extern int __heap_start, *__brkval; 
-  int v; 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
-}
-
-// This method will attempt to turn a string representation of an
-// integer into an actual integer.  This method will return an
-// integer value of zero if the string length is zero, if the string
-// can't be parsed into an integer or, of course, if the string
-// value actually represents the integer value zero.
-int strToInt(String intString) {
-  int newInt = 0;
-
-  if( intString.length() > 0 ) {
-    newInt = intString.toInt();
-  }
-
-  return newInt;
-}
-
-void sendInitMessage(String initName, int initValue) {
-  sendSerialMessage("Initializing " + initName + " to " + String(initValue)); 
-}
-
-void sendUpdateMessage(String updateName, int updateValue) {
-  sendSerialMessage("Updating " + updateName + " to " + String(updateValue));
-}
-
-// Your general purpose serial message sender.
-void sendSerialMessage(String message) {
-  Serial.println(message);
-  Serial.flush();
-} 
 

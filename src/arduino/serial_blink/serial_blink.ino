@@ -3,6 +3,35 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_PWMServoDriver.h"
 
+#include <StandardCplusplus.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <iterator>
+
+
+
+
+std::map <std::string, void(*)(int)> commandHandlerMap;
+
+void registerCommandHandlers() {
+  
+  commandHandlerMap.insert(std::pair<std::string, void(*)(int)>( "BLINK", setBlinkInterval ));
+  commandHandlerMap.insert(std::pair<std::string, void(*)(int)>( "MOTOR_01", setMotor01 ));
+  commandHandlerMap.insert(std::pair<std::string, void(*)(int)>( "MOTOR_02", setMotor02 ));
+  commandHandlerMap.insert(std::pair<std::string, void(*)(int)>( "SERVO_01", setServo01 ));
+  commandHandlerMap.insert(std::pair<std::string, void(*)(int)>( "SERVO_02", setServo02 ));
+}
+
+
+
+
+
+
+
+
+
+
 /* ******* INIT DEFAULTS ****** */
 
 const int MISSED_UPDATES_ALLOWED_DEFAULT = 5;
@@ -61,6 +90,8 @@ void setup() {
   servo01.write(servo01Init);
   servo02.attach(10);
   servo02.write(servo02Init);
+  
+  registerCommandHandlers();
   
   Serial.begin(19200);  
 }
@@ -204,6 +235,26 @@ const String MOTOR_01 = "MOTOR_01";
 const String MOTOR_02 = "MOTOR_02";
 const String SERVO_01 = "SERVO_01";
 const String SERVO_02 = "SERVO_02";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 String serialString = "";                // String that'll hold incoming serial data.
 boolean serialStringComplete = false;    // Set to true once an entire serial string is received.
