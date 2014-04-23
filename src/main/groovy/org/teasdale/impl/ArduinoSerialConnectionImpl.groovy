@@ -56,6 +56,12 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     @Override
+    public void send(String string) {
+        verifyWriteState()
+        sendString(string);
+    }
+
+    @Override
     void close() {
         verifyCloseState()
         stopDataUpdater()
@@ -95,10 +101,10 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         String missedUpdatesAllowedInitString = CommandBuilder.buildMissedUpdatesAllowedInitString(arduinoSerialConfigImpl)
         Collection<String> commandInitStrings = CommandBuilder.buildCommandInitStrings(arduinoSerialConfigImpl)
 
-        syncronizedWriteBytes(updateFrequencyInitString.getBytes())
-        syncronizedWriteBytes(missedUpdatesAllowedInitString.getBytes())
+        synchronizedWriteBytes(updateFrequencyInitString.getBytes())
+        synchronizedWriteBytes(missedUpdatesAllowedInitString.getBytes())
         commandInitStrings.each { String command ->
-            syncronizedWriteBytes(command.getBytes())
+            synchronizedWriteBytes(command.getBytes())
         }
     }
 
@@ -119,7 +125,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         }
     }
 
-    synchronized void syncronizedWriteBytes(byte[] bytes) {
+    synchronized void synchronizedWriteBytes(byte[] bytes) {
         serialPort.writeBytes( bytes )
     }
 
@@ -141,6 +147,10 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
                 command.updateValue(value)
             }
         }
+    }
+
+    void sendString(String string) {
+        synchronizedWriteBytes( (string + '\n').getBytes() )
     }
 
     void verifyCloseState() {

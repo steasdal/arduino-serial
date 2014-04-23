@@ -31,6 +31,8 @@ public interface ArduinoSerialConnection {
      */
     public void updateCommand(String commandName, int value);
 
+    public void send(String string);
+
     /**
      * Close the serial connection.
      */

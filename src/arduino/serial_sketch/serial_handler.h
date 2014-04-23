@@ -54,24 +54,15 @@ void serialEvent() {
 void serialRouter(String serialString) {
   if ( serialString.startsWith( INIT_START ) ) {
     if( serialString.length() > INIT_START.length() ) {
-      String initPlusSeparator = INIT_START + COMMAND_SEPARATOR;
-      String initCommand = serialString.substring( initPlusSeparator.length() );
-      
-      initStringHandler( initCommand );
+      initStringHandler( serialString.substring( (INIT_START + COMMAND_SEPARATOR).length() ) );
     }
   } else if( serialString.startsWith( COMMAND_START ) ) {
-
+    if( serialString.length() > COMMAND_START.length() ){
+      commandStringHandler( serialString.substring( (COMMAND_START + COMMAND_SEPARATOR).length() ) );
+    }
+    
     // Update the variable that holds the time of last update
     updateNotifier();
-
-    // If there's something after COMMAND_START, 
-    // then we've got some actual update data!
-    if( serialString.length() > COMMAND_START.length() ){
-      String commandPlusSeparator = COMMAND_START + COMMAND_SEPARATOR;
-      String commands = serialString.substring( commandPlusSeparator.length() );
-      
-      commandStringHandler( commands );
-    }
   }
 }
 
@@ -102,25 +93,20 @@ void initStringHandler(String initString) {
 // We'll split string into individual commands and pass 
 // each one off to the commandHandler function below.
 void commandStringHandler(String commandString) {
-
+  int start = 0;
+  int index = -1;
+  
   do {
-
-    String command = "";
-    int commandSeparatorIndex = commandString.indexOf( COMMAND_SEPARATOR );
-
-    if( commandSeparatorIndex > 0 ) {
-      command = commandString.substring( 0, commandSeparatorIndex );
-      commandString = commandString.substring( (commandSeparatorIndex + 1), commandString.length() );
-    } 
-    else {
-      command = commandString;
-      commandString = "";
+    index = commandString.indexOf( COMMAND_SEPARATOR, start );
+    
+    if( index > 0 ) {
+      commandHandler( commandString.substring( start, index ) );
+    } else {
+      commandHandler( commandString.substring( start ) );
     }
-
-    commandHandler(command);
-
-  } 
-  while( commandString.length() > 0 );
+    
+    start = index + 1;    
+  } while ( index > 0 );
 }
 
 // This'll handle individual commands with a command name and a value separated

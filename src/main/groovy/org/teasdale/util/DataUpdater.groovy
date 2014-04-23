@@ -109,7 +109,7 @@ public class DataUpdater
 
         long sendUpdate(String updateString) {
             Date dateBeforeUpdate = new Date()
-            connection.syncronizedWriteBytes(updateString.getBytes())
+            connection.synchronizedWriteBytes(updateString.getBytes())
             Date dateAfterUpdate = new Date()
 
             // return the number of milliseconds that elapsed during the update

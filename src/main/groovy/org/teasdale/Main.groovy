@@ -17,6 +17,7 @@ public class Main {
     public static final String START = /start/
     public static final String STOP = /stop/
     public static final String UPDATE = /^/ + /update/ + /\s+/ + /(\w+)/ + /\s+/ + /(\d+)/ + /$/  /* "update", whitespace, command name, whitespace, command value */
+    public static final String SEND = /^/ + /send/ + /\s+/ + /.*/ + /$/
     public static final String STATUS = /status/
     public static final String GUI = /gui/
     public static final String HELP = /help/
@@ -40,6 +41,9 @@ public class Main {
                     break
                 case ~UPDATE:
                     update(input)
+                    break
+                case ~SEND:
+                    send(input)
                     break
                 case ~STATUS:
                     status()
@@ -101,6 +105,10 @@ public class Main {
                 consoleWriteLn(exception.getMessage())
             }
         }
+    }
+
+    private static void send(String input) {
+        connection.send( input.substring("send ".length()) );
     }
 
     private static void status() {
