@@ -9,6 +9,7 @@
 #include "command_handlers.h"
 #include "util_functions.h"
 #include "serial_handler.h"
+#include "update_handler.h"
 
 /************************************************
  BLINK BLINK BLINK BLINK BLINK BLINK BLINK BLINK 
@@ -141,64 +142,10 @@ void setMotorSpeed(Adafruit_DCMotor *motor, int speed) {
   }
 }
 
-/*************************************************
- UPDATE HANDLER - UPDATE HANDLER - UPDATE HANDLER
-*************************************************/
-
-const String UPDATE_RATE = "UPDATE_RATE";
-const String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED";
-
-int updateRate = 5;
-int missedUpdatesAllowed = 10;
-
-unsigned long lastUpdate = 0;           // The last time an update was received
-boolean connectionLive = false;         // Is this connection currently live?
-
-void updateRateInitHandler(int initialUpdateRate) {
-  updateRate = initialUpdateRate;
-  sendInitMessage(UPDATE_RATE, initialUpdateRate);
-}
-
-void missedUpdatesAllowedInitHandler(int initialMissedUpdatesAllowed ) {
-  missedUpdatesAllowed = initialMissedUpdatesAllowed;
-  sendInitMessage(MISSED_UPDATES_ALLOWED, initialMissedUpdatesAllowed);
-}
-
-// This method will be called by the serialRounter 
-// method every time a new command is received.
-void resetLastUpdate() {
-  lastUpdate = millis();
-  connectionLive = true;
-}
-
-// Check to see if we've exceedeed the time limit between updates.  If we 
-// haven't seen an update for a while, reset all values to their defaults.
-void checkForUpdateExpiration() {
-  if( connectionLive ) {
-    // First off, calculate the number of milliseconds that are allowed
-    // to elapse before we consider the connection as timed out.
-    unsigned long millisecondsBetweenUpdates = 1000 / updateRate;
-    unsigned long millisecondsBeforeExpiration = millisecondsBetweenUpdates * missedUpdatesAllowed;
-
-    // If the current time minus the previous update time is greater than 
-    // the number of milliseconds that have elapsed since the last update, 
-    // we've got an expired connection.  If that happens, reset all commands 
-    // to their initial values by calling the initializeCommands() method.
-    unsigned long currentMillis = millis();
-
-    if( currentMillis - lastUpdate > millisecondsBeforeExpiration ) {
-      initializeCommands();
-      connectionLive = false;
-    }
-  }
-}
-
 /************************************************
  REGISTER INIT HANDLERS - REGISTER INIT HANDLERS
 ************************************************/
 void registerInitHandlers() {
-  registerInitHandler(UPDATE_RATE, updateRateInitHandler);
-  registerInitHandler(MISSED_UPDATES_ALLOWED, missedUpdatesAllowedInitHandler);
   registerInitHandler(BLINK, updateBlinkIntervalInit);
   registerInitHandler(SERVO_01, updateServo01Init);
   registerInitHandler(SERVO_02, updateServo02Init);
@@ -242,11 +189,11 @@ void setup() {
   servo02.attach(10);
   servo02.write(servo02Init);
   
-  Serial.begin(19200); 
-  
   registerInitHandlers();
   registerCommandHandlers(); 
-  registerForUpdateNotifications(resetLastUpdate);
+  setupUpdateHandler(initializeCommands);
+  
+  Serial.begin(19200); 
   
   sendSerialMessage("free SRAM: " + String( freeRam() ));
 }
