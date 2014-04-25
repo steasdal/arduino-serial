@@ -5,8 +5,8 @@ import org.teasdale.impl.ArduinoSerialConfigImpl
 
 class CommandBuilder {
 
-    private static final String INIT_START = "INIT"
-    private static final String COMMAND_START = "CMD"
+    private static final String INIT_START = "I"
+    private static final String COMMAND_START = "C"
     private static final String UPDATE_RATE = "UPDATE_RATE"
     private static final String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED"
     private static final String COMMAND_SEPARATOR = ","

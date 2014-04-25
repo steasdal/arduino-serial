@@ -192,6 +192,7 @@ void setup() {
   registerInitHandlers();
   registerCommandHandlers(); 
   setupUpdateHandler(initializeCommands);
+  setupSerialHandler();
   
   Serial.begin(19200); 
   
@@ -199,6 +200,7 @@ void setup() {
 }
 
 void loop() {
+  processSerialData();
   checkForUpdateExpiration();
   checkForBlink();
 }
