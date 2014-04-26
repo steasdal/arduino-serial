@@ -11,8 +11,7 @@ int missedUpdatesAllowed = 10;
 unsigned long lastUpdate = 0;           // The last time an update was received
 boolean connectionLive = false;         // Is this connection currently live?
 
-// This is a pointer to the function that we'll call when
-// we stop receiving commands (e.g. the connection times out).
+// This is a pointer to the function that we'll call when we stop receiving commands.
 void(*commandInitializer)(void);
 
 void updateRateInitHandler(int initialUpdateRate) {

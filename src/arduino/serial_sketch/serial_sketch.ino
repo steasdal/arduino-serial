@@ -62,6 +62,10 @@ void switchLedState() {
   }
 }
 
+void setupBlink() {
+  pinMode(led, OUTPUT);   
+}
+
 /*******************************************
  SERVOS - SERVOS - SERVOS - SERVOS - SERVOS
 *******************************************/
@@ -92,6 +96,14 @@ void setServo01(int servoValue) {
 void setServo02(int servoValue) {
   servo02.write( constrain(servoValue, 0, 180) );
   sendUpdateMessage(SERVO_02, servoValue);
+}
+
+
+void setupServos() {
+  servo01.attach(9);
+  servo01.write(servo01Init);
+  servo02.attach(10);
+  servo02.write(servo02Init);
 }
 
 /*******************************************
@@ -136,10 +148,13 @@ void setMotorSpeed(Adafruit_DCMotor *motor, int speed) {
     motor->setSpeed( speed );
     motor->run( FORWARD );
   } else {
-    speed = abs( speed );
-    motor->setSpeed( speed );
+    motor->setSpeed( abs(speed) );
     motor->run( BACKWARD );
   }
+}
+
+void setupMotors() {
+  AFMS.begin();
 }
 
 /************************************************
@@ -179,22 +194,17 @@ void initializeCommands() {
  SETUP AND MAIN LOOP - SETUP AND MAIN LOOP - SETUP AND MAIN LOOP
 ****************************************************************/
 
-void setup() {     
-  pinMode(led, OUTPUT);   
-
-  AFMS.begin();
-  
-  servo01.attach(9);
-  servo01.write(servo01Init);
-  servo02.attach(10);
-  servo02.write(servo02Init);
+void setup() {
+  setupBlink();
+  setupServos();
+  setupMotors();
   
   registerInitHandlers();
   registerCommandHandlers(); 
   setupUpdateHandler(initializeCommands);
   setupSerialHandler();
   
-  Serial.begin(19200); 
+  Serial.begin(19200);
   
   sendSerialMessage("free SRAM: " + String( freeRam() ));
 }

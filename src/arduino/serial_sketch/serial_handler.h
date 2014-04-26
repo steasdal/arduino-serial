@@ -38,6 +38,32 @@ void setupSerialHandler() {
   buffer.reserve(64);
 }
 
+// The original plan for handling incoming serial data resulted in much prettier code.
+// It involved saving entire command strings with multiple commands right up to the newline
+// character in a big buffer and then parsing the whole command string.  I quickly realized
+// how scarce the resources are on an Arduino (2k of SRAM) and how important it is to keep
+// the tiny serial buffer empty and rewrote it as this efficient but unsightly monstrosity.
+//
+// All incoming strings are going to take one of the following forms:
+//
+// I,BLINK:100                                        - Initialization string
+// C                                                  - Lone command mode character
+// C,BLINK:250                                        - Command string with single command
+// C,BLINK:250,SRV1:0,SRV2:180,MTR1:25,MTR2:25...     - Command string with multiple commands
+// 
+// All incoming strings are going to begin with either an "I" or a "C" which sets the mode
+// to "initialize" or "command" respectively and will terminate with a newline character (\n).
+// Init strings will only be sent one at a time (although this function could handle multiple
+// init commands in a single string).  Command strings will have ZERO or MORE commands following 
+// the initial "C" mode character.
+// 
+// A "C" mode character sent by itself causes the function pointed to by the "updateNotifer"
+// function pointer to be called (as does any other command string with one or more commands).
+//
+// All commands (both init and regular command commands) take the same form: <IDENTIFIER><VALUE>
+// Multiple commands in a single command string will be separated with the COMMAND_SEPARATOR
+// character (a comma: ',').
+//
 void processSerialData() {
   while( Serial.available() ) {
     
