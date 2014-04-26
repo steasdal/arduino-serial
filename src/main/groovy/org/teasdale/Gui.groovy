@@ -204,25 +204,25 @@ class Gui {
 
     static class Servo01SliderListener extends SliderListener {
         @Override void update(int value) {
-            connection.updateCommand("SERVO_01", value)
+            connection.updateCommand("SRV1", value)
         }
     }
 
     static class Servo02SliderListener extends SliderListener {
         @Override void update(int value) {
-            connection.updateCommand("SERVO_02", value)
+            connection.updateCommand("SRV2", value)
         }
     }
 
     static class Motor01SliderListener extends SliderListener {
         @Override void update(int value) {
-            connection.updateCommand("MOTOR_01", value)
+            connection.updateCommand("MTR1", value)
         }
     }
 
     static class Motor02SliderListener extends SliderListener {
         @Override void update(int value) {
-            connection.updateCommand("MOTOR_02", value)
+            connection.updateCommand("MTR2", value)
         }
     }
 }

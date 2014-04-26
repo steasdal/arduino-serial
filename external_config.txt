@@ -3,7 +3,7 @@ serial.baudrate = 19200
 serial.databits = 8
 serial.parity = "none"
 serial.stopbits = 1
-serial.updatefrequency = 10
+serial.updatefrequency = 20
 serial.maxmissedupdates = 5
 
 commands {
@@ -13,22 +13,22 @@ commands {
     }
 
     motor01 {
-        name = "MOTOR_01"
+        name = "MTR1"
         value = 0
     }
 
     motor02 {
-        name = "MOTOR_02"
+        name = "MTR2"
         value = 0
     }
 
     servo01 {
-        name = "SERVO_01"
+        name = "SRV1"
         value = 90
     }
 
     servo02 {
-        name = "SERVO_02"
+        name = "SRV2"
         value = 90
     }
 }

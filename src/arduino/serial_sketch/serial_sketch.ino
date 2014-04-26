@@ -65,8 +65,8 @@ void switchLedState() {
 /*******************************************
  SERVOS - SERVOS - SERVOS - SERVOS - SERVOS
 *******************************************/
-const String SERVO_01 = "SERVO_01";
-const String SERVO_02 = "SERVO_02";
+const String SERVO_01 = "SRV1";
+const String SERVO_02 = "SRV2";
 
 Servo servo01;
 Servo servo02;
@@ -97,8 +97,8 @@ void setServo02(int servoValue) {
 /*******************************************
  MOTORS - MOTORS - MOTORS - MOTORS - MOTORS
 *******************************************/
-const String MOTOR_01 = "MOTOR_01";
-const String MOTOR_02 = "MOTOR_02";
+const String MOTOR_01 = "MTR1";
+const String MOTOR_02 = "MTR2";
 
 int motor01Init = 0;
 int motor02Init = 0;

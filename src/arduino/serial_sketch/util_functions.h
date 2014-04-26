@@ -34,12 +34,12 @@ void sendSerialMessage(String message) {
 
 // Send a serial message when a command is initialized
 void sendInitMessage(String initName, int initValue) {
-  sendSerialMessage("Init " + initName + " to " + String(initValue)); 
+  sendSerialMessage("Initialized " + initName + " to " + String(initValue)); 
 }
 
 // Send a serial message when a command is updated
 void sendUpdateMessage(String updateName, int updateValue) {
-  sendSerialMessage("Update " + updateName + " to " + String(updateValue));
+  sendSerialMessage( updateName + ":" + String(updateValue));
 }
 
 
