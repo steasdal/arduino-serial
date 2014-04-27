@@ -1,6 +1,13 @@
-/**************************************************************************
- COMMAND HANDLERS - COMMAND HANDLERS - COMMAND HANDLERS - COMMAND HANDLERS
-**************************************************************************/
+/****************************************************************************************
+ This file contains the initHandlerMap, the commandHandlerMap and their associated
+ helper functions.  These maps map command names to their associated handler functions.
+ 
+ As you can see, these maps are std::map objects from the Standard C plus plus library
+ and require the following import statements:
+ 
+ #include <StandardCplusplus.h>
+ #include <map>
+****************************************************************************************/
 
 std::map<String, void(*)(int)> initHandlerMap;
 

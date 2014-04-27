@@ -1,6 +1,11 @@
-/**************************************************************************************************
- SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER - SERIAL COMMAND HANDLER
-**************************************************************************************************/
+/****************************************************************************************
+ All serial handling is, uh... handled by the methods in this file.  Incoming serial
+ data is processed by the processSerialData() function which is called from from the 
+ main loop() function.
+ 
+ Incoming init and update command/value pairs are captured here and handled by looking
+ up their handler functions (see the command_handlers.h file). 
+****************************************************************************************/
 
 /***** FUNCTION PROTOTYPES - FUNCTION PROTOTYPES *****/
 void initStringHandler(String initString);

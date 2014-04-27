@@ -1,6 +1,9 @@
-/*************************************************
- UPDATE HANDLER - UPDATE HANDLER - UPDATE HANDLER
-*************************************************/
+/****************************************************************************************
+ Here you'll find the update handler.  The variables and functions herein are responsible
+ for keeping track of the last time an update was received.  If no updates are received
+ within a certain period of time, the commandInitializer function will be called to set
+ all commands to their initial values.
+****************************************************************************************/
 
 const String UPDATE_RATE = "UPDATE_RATE";
 const String MISSED_UPDATES_ALLOWED = "MISSED_UPDATES_ALLOWED";

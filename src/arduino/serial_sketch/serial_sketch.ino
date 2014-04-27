@@ -1,3 +1,67 @@
+/****************************************************************************************
+ This sketch requires the following two libraries to compile:
+ 
+ Adafruit Motor Shield V2 Library:
+ https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library
+ 
+ Standard C++ for Arduino Library:
+ https://github.com/maniacbug/StandardCplusplus
+ 
+ Instructions for installing Arduino libraries can be found here:
+ http://arduino.cc/en/Guide/Libraries
+ 
+ This Arduino sketch is designed to work in conjunction with its accompanying
+ Java API to provide a relatively robust and easily extensible method for
+ sending a stream of commands to an Arduino over a USB serial connection.
+ 
+ Each command will have an initial value and a current value.  If the Arduino
+ stops receiving commands after a configurable period of time, all command values
+ will be automatically set to their initial values.  The prototypical example
+ involves sending commands for controlling the speed of a DC motor (which might
+ be used in a remote control vehicle, robot, etc.)  If the the API stops sending
+ regular updates, the motor speed should be automatically be set its initial
+ value of zero (e.g stop).
+ 
+ This sketch is setup to work with the Adafruit Motor Shield V2 for Arduino:
+ 
+ https://learn.adafruit.com/adafruit-motor-shield-v2-for-arduino
+ 
+ ... but it should be relatively easy to extend it for other purposes.
+ 
+ ---------------------------------------------------------------------------------------
+ 
+ Adding support for a new command requires following steps:
+ 
+ 1) Define a const String command name.  This string will be sent by the accompanying
+    API along with a command value.  Don't get too fancy with long, elaborate command
+    names; remember that the Arduino serial buffer is, by default, only 64 bytes long.
+    
+ 2) Create an initialization handler function that takes an int value and returns void.  
+    The function must have this exact signature [ void function(int) ].  This function
+    will be called when the API first connects to the Arduino and will be be passed an 
+    int initialization value.
+    
+ 3) Create a command handler function that takes an int value and returns void.  The
+    function must have this exact signature [ void function(int) ].  This function will
+    be called whenever a new command update is received.
+    
+ 4) Register your init and command handler functions in the registerInitHandlers() and
+    registerCommandHandlers() functions below.  Just pass your command name and
+    function name to the registerInitHandler() and registerCommandHandler functions
+    respectively.
+    
+ 5) Add some kind of command initialization to the initializeCommands() function below.
+    The initializeCommands() function is called when the Arduino stops receiving 
+    data from the API.  Typically, you'd reset your command value to the initialization
+    value passed into your initialization handler function defined in step 2.
+    
+ 6) If you require any kind of setup before the loop starts, put it in a function and
+    add that function to the setup() function.
+ 
+ If you're having trouble making sense of these instructions, just take a look at how
+ it's been implemented in the Blink, Servo and Motor sections below.
+****************************************************************************************/
+
 #include <Servo.h> 
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
@@ -193,7 +257,6 @@ void initializeCommands() {
 /****************************************************************
  SETUP AND MAIN LOOP - SETUP AND MAIN LOOP - SETUP AND MAIN LOOP
 ****************************************************************/
-
 void setup() {
   setupBlink();
   setupServos();

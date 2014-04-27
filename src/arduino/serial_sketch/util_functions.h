@@ -1,6 +1,6 @@
-/******************************************************************************
- UTILITY FUNCTIONS - UTILITY FUNCTIONS - UTILITY FUNCTIONS - UTILITY FUNCTIONS
-******************************************************************************/
+/****************************************************************************************
+ This is just a collection of utilitiy functions that didn't logically fit anywhere else
+****************************************************************************************/
 
 // This method calculates the amount of space (free memory) between the heap and the stack.
 // The amount of memory returned does NOT include bits of fragmented memory in the heap.
@@ -11,11 +11,10 @@ int freeRam ()
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
-// This method will attempt to turn a string representation of an
-// integer into an actual integer.  This method will return an
-// integer value of zero if the string length is zero, if the string
-// can't be parsed into an integer or, of course, if the string
-// value actually represents the integer value zero.
+// This method will attempt to turn a string representation of an integer into an actual 
+// integer.  This method will return an integer value of zero if the string length is 
+// zero, if the string can't be parsed into an integer or, of course, if the string value
+// actually represents the integer value zero.
 int strToInt(String intString) {
   int newInt = 0;
 
