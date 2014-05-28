@@ -1,1 +1,2 @@
-rootProject.name = 'arduino-serial'
+// projectName is defined in gradle.properties
+rootProject.name = projectName

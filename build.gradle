@@ -1,6 +1,17 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
-apply plugin: "jacoco"
+apply plugin: 'jacoco'
+apply plugin: 'shadow'
+apply plugin: 'maven-publish'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
+    }
+}
 
 repositories {
     mavenCentral()
@@ -8,16 +19,50 @@ repositories {
 
 dependencies {
     compile 'org.scream3r:jssc:2.8.0'
-    compile 'org.codehaus.groovy:groovy-all:2.2.2'
-    compile 'org.apache.commons:commons-lang3:3.3.1'
     compile 'cglib:cglib-nodep:3.1'
-
+    compile 'org.apache.commons:commons-lang3:3.3.1'
+    compile 'org.codehaus.groovy:groovy-all:2.2.2'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
-defaultTasks 'clean', 'javadoc', 'jar', 'test', 'jacocoTestReport'
+// projectGroup and projectVersion are defined in gradle.properties and
+// will be used to name the jar files and in the generated .pom file.
+group = projectGroup
+version = projectVersion
+
+defaultTasks 'clean', 'test', 'jacocoTestReport', 'jar', 'shadowJar', 'sourcesJar', 'javadocJar'
 
 jar {
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest { attributes 'Main-Class': 'org.teasdale.Main' }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "docs"
+            }
+        }
+    }
+}
+
+shadow {
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
 }
