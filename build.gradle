@@ -46,6 +46,13 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task fatjar(type: Jar) {
+    classifier = 'fat'
+    description = 'build a runnable jar with all transitive dependencies'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -56,7 +63,7 @@ publishing {
             }
 
             artifact javadocJar {
-                classifier "docs"
+                classifier "javadoc"
             }
         }
     }
