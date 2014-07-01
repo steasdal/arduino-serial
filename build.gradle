@@ -1,17 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'jacoco'
-apply plugin: 'shadow'
 apply plugin: 'maven-publish'
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
-    }
-}
 
 repositories {
     mavenCentral()
@@ -30,7 +20,7 @@ dependencies {
 group = projectGroup
 version = projectVersion
 
-defaultTasks 'clean', 'test', 'jacocoTestReport', 'jar', 'shadowJar', 'sourcesJar', 'javadocJar'
+defaultTasks 'clean', 'test', 'jacocoTestReport', 'jar', 'sourcesJar', 'javadocJar'
 
 jar {
     manifest { attributes 'Main-Class': 'org.teasdale.Main' }
@@ -53,10 +43,49 @@ task fatjar(type: Jar) {
     with jar
 }
 
+def pomConfig = {
+    inceptionYear '2014'
+
+    name projectName
+    description projectDescription
+    packaging 'jar'
+    url 'http://maven.apache.org'
+
+    scm {
+        url 'https://github.com/steasdal/arduino-serial'
+        connection 'https://github.com/steasdal/arduino-serial.git'
+        developerConnection 'https://github.com/steasdal/arduino-serial.git'
+    }
+
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+
+    developers {
+        developer {
+            id 'steasdal'
+            name 'Sam Teasdale'
+            email 'samuel.teasdale@gmail.com'
+            roles{
+                role 'Developer'
+            }
+            timezone '-5'
+        }
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+
+            pom.withXml {
+                asNode().children().last() + pomConfig
+            }
 
             artifact sourcesJar {
                 classifier "sources"
@@ -67,9 +96,4 @@ publishing {
             }
         }
     }
-}
-
-shadow {
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
 }
