@@ -4,6 +4,11 @@ import org.teasdale.api.ArduinoSerialConfig
 import org.teasdale.impl.ArduinoSerialConfigImpl
 
 class ConfigFileProcessor {
+
+    public static ArduinoSerialConfig process(final InputStream inputStream) {
+        return parseConfigString(inputStream.text)
+    }
+
     public static ArduinoSerialConfig process(final String filename) {
         File configFile = new File(filename)
 
@@ -11,9 +16,14 @@ class ConfigFileProcessor {
             throw new FileNotFoundException("${filename} does not exist");
         }
 
+        return parseConfigString(configFile.text)
+    }
+
+    private static ArduinoSerialConfig parseConfigString(final String fileContent) {
+
         ArduinoSerialConfigImpl arduinoSerialConfigImpl = new ArduinoSerialConfigImpl()
 
-        def externalConfig = new ConfigSlurper().parse( configFile.text )
+        def externalConfig = new ConfigSlurper().parse( fileContent )
 
         if(externalConfig != null) {
             def portname = externalConfig.serial.portname

@@ -70,6 +70,10 @@ class ArduinoSerialConfigSpec extends Specification {
         1.005             | MissingMethodException
         "9600.0"          | IllegalArgumentException
 
+        0                 | IllegalArgumentException
+        "0"               | IllegalArgumentException
+        new Integer(0)    | IllegalArgumentException
+
         -1                | IllegalArgumentException
         "-1"              | IllegalArgumentException
         new Integer(-1)   | IllegalArgumentException

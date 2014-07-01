@@ -23,6 +23,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
 
     @Override
     void setPortname(String newPortname) {
+        Validate.notEmpty(newPortname)
         portname = newPortname
     }
 
@@ -91,11 +92,12 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
 
     @Override
     public String[] getRegisteredCommands() {
-        String[] commandArray = new String[0];
+        def commandArray = []
         commands.each { String key, ArduinoSerialCommand command ->
             commandArray << command.name
         }
-        return commandArray
+
+        return commandArray as String[]
     }
 
     @Override

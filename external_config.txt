@@ -1,10 +1,10 @@
-serial.portname = "/dev/tty.usbmodemfd121"
+serial.portname = "COM4"
 serial.baudrate = 19200
 serial.databits = 8
 serial.parity = "none"
 serial.stopbits = 1
-serial.updatefrequency = 20
-serial.maxmissedupdates = 5
+serial.updatefrequency = 16
+serial.maxmissedupdates = 40
 
 commands {
     blink {

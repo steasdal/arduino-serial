@@ -5,6 +5,8 @@ import org.teasdale.impl.ArduinoSerialConfigImpl;
 import org.teasdale.impl.ArduinoSerialConnectionImpl;
 import org.teasdale.util.ConfigFileProcessor;
 
+import java.io.InputStream;
+
 /**
  * A singleton factory for obtaining concrete instances of
  * {@link ArduinoSerialConfig} and {@link ArduinoSerialConnection}.
@@ -32,10 +34,18 @@ public class ArduinoSerialFactory {
      *                       for values to populate a {@link ArduinoSerialConfig}
      *                       object.
      * @return an instance of {@link ArduinoSerialConfig} with fields populated
-     * by values from a configuration file (in {@link ConfigSlurper}
-     * format).
+     * by values from a configuration file (in {@link ConfigSlurper} format).
      */
     public ArduinoSerialConfig getArduinoSerialConfig(String configFileName) { return ConfigFileProcessor.process(configFileName); }
+
+    /**
+     * @param configFileStream An InputStream representing the contents of a
+     *                         configuration file to parse for values to populate
+     *                         a {@link ArduinoSerialConfig} object.
+     * @return an instance of {@link ArduinoSerialConfig} with fields populated
+     * by values from a configuration file (in {@link ConfigSlurper} format).
+     */
+    public ArduinoSerialConfig getArduinoSerialConfig(InputStream configFileStream) { return ConfigFileProcessor.process(configFileStream); }
 
     /**
      * @return an instance of {@link ArduinoSerialConnection} configured
