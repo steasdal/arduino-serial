@@ -8,6 +8,8 @@ import org.teasdale.api.ArduinoSerialConfig.Parity
 import org.teasdale.api.ArduinoSerialConfig.Stopbits
 import org.teasdale.api.ArduinoSerialListener
 
+import java.util.concurrent.ConcurrentHashMap
+
 class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
 
     String portname = DEFAULT_PORTNAME;
@@ -18,7 +20,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     int updateFrequency = DEFAULT_UPDATE_FREQUENCY
     int missedUpdatesAllowed = DEFAULT_MISSED_UPDATES_ALLOWED
 
-    Map<String, ArduinoSerialCommand> commands = Collections.synchronizedMap(new HashMap<String, ArduinoSerialCommand>())
+    Map<String, ArduinoSerialCommand> commands = new ConcurrentHashMap<String, ArduinoSerialCommand>()
     Collection<ArduinoSerialListener> listeners = Collections.synchronizedSet(new HashSet<ArduinoSerialListener>())
 
     @Override

@@ -138,14 +138,12 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     static void updateCommand(Map<String, ArduinoSerialCommand> commands, String commandName, int value) {
-        synchronized(commands) {
-            ArduinoSerialCommand command = commands.get(commandName)
+        ArduinoSerialCommand command = commands.get(commandName)
 
-            if( command == null ) {
-                throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
-            } else {
-                command.updateValue(value)
-            }
+        if( command == null ) {
+            throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
+        } else {
+            command.updateValue(value)
         }
     }
 

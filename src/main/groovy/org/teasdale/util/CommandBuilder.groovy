@@ -28,11 +28,9 @@ class CommandBuilder {
     public static Collection<String> buildCommandInitStrings(ArduinoSerialConfigImpl config) {
         Set<String> commandInitStrings = new HashSet<String>()
 
-        synchronized( config.getCommands() ) {
-            config.getCommands().each { String key, ArduinoSerialCommand command ->
-                String commandInitString = INIT_START + COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.initialValue.toString() + NEWLINE
-                commandInitStrings.add commandInitString
-            }
+        config.getCommands().each { String key, ArduinoSerialCommand command ->
+            String commandInitString = INIT_START + COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.initialValue.toString() + NEWLINE
+            commandInitStrings.add commandInitString
         }
 
         return commandInitStrings
@@ -41,12 +39,10 @@ class CommandBuilder {
     public static String buildUpdateString(ArduinoSerialConfigImpl config) {
         StringBuffer stringBuffer = new StringBuffer(COMMAND_START)
 
-        synchronized( config.getCommands() ) {
-            config.getCommands().each { String key, ArduinoSerialCommand command ->
-                if(command.updatePending) {
-                    stringBuffer.append(COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.currentValue.toString())
-                    command.updatePending = false
-                }
+        config.getCommands().each { String key, ArduinoSerialCommand command ->
+            if(command.updatePending) {
+                stringBuffer.append(COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.currentValue.toString())
+                command.updatePending = false
             }
         }
 
