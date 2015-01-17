@@ -140,9 +140,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     static void updateCommand(ConcurrentHashMap<String, ArduinoSerialCommand> commands, String commandName, int value) {
-        ArduinoSerialCommand oldCommand = commands.get(commandName)
-
-        if( oldCommand == null ) {
+        if( !commands.containsKey(commandName) ) {
             throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
         } else {
             ArduinoSerialCommand newCommand = new ArduinoSerialCommand(commandName, value);
