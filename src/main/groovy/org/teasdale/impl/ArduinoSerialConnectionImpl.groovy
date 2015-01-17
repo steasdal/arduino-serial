@@ -145,7 +145,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         if( oldCommand == null ) {
             throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
         } else {
-            ArduinoSerialCommand newCommand = new ArduinoSerialCommand(oldCommand.name, oldCommand.currentValue);
+            ArduinoSerialCommand newCommand = new ArduinoSerialCommand(commandName, value);
             commands.replace(commandName, newCommand)
         }
     }
