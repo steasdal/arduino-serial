@@ -20,7 +20,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     int updateFrequency = DEFAULT_UPDATE_FREQUENCY
     int missedUpdatesAllowed = DEFAULT_MISSED_UPDATES_ALLOWED
 
-    Map<String, ArduinoSerialCommand> commands = new ConcurrentHashMap<String, ArduinoSerialCommand>()
+    ConcurrentHashMap<String, ArduinoSerialCommand> commands = new ConcurrentHashMap<String, ArduinoSerialCommand>()
     Collection<ArduinoSerialListener> listeners = Collections.synchronizedSet(new HashSet<ArduinoSerialListener>())
 
     @Override
@@ -90,7 +90,7 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
         commands.put( command.name, command )
     }
 
-    public Map<String, ArduinoSerialCommand> getCommands() { return commands }
+    public ConcurrentHashMap<String, ArduinoSerialCommand> getCommands() { return commands }
 
     @Override
     public String[] getRegisteredCommands() {
