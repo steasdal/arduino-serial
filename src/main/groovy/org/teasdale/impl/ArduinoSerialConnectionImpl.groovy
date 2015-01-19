@@ -138,7 +138,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     }
 
     static void updateCommand(Map<String, ArduinoSerialCommand> commands, String commandName, int value) {
-        synchronized(commands) {
+        // synchronized(commands) {
             ArduinoSerialCommand command = commands.get(commandName)
 
             if( command == null ) {
@@ -146,7 +146,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
             } else {
                 command.updateValue(value)
             }
-        }
+        // }
     }
 
     void sendString(String string) {

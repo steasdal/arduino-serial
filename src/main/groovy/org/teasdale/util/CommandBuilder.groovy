@@ -41,6 +41,20 @@ class CommandBuilder {
     public static String buildUpdateString(ArduinoSerialConfigImpl config) {
         StringBuffer stringBuffer = new StringBuffer(COMMAND_START)
 
+        Map<String, ArduinoSerialCommand> commands = config.getCommands()
+
+        // Iterating over entrySet() with a foreach loop uses a "weakly concurrent"
+        // iterator which may help prevent previously seen threading issues.
+        for(Map.Entry<String, ArduinoSerialCommand> entry: commands.entrySet()) {
+            ArduinoSerialCommand command = entry.getValue()
+
+            if(command.updatePending) {
+                stringBuffer.append(COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.currentValue.toString())
+                command.updatePending = false
+            }
+        }
+
+        /*
         synchronized( config.getCommands() ) {
             config.getCommands().each { String key, ArduinoSerialCommand command ->
                 if(command.updatePending) {
@@ -49,6 +63,7 @@ class CommandBuilder {
                 }
             }
         }
+        */
 
         stringBuffer.append(NEWLINE)
         return stringBuffer.toString()
