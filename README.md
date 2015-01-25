@@ -40,7 +40,30 @@ that the serial connection or API host is no longer operative and set all
 commands to their initial values.  The number of missed updates is configurable
 from three to one hundred.
 
+## Usage
 
+To use this API, you'll need to update your build script to retrieve the binaries from
+[Bintray](https://bintray.com/steasdal/arduino/arduino-serial) and add them to your
+project's classpath.
 
+### As a Grails dependency
 
+    repositories {
+        mavenRepo "http://dl.bintray.com/steasdal/arduino"
+    }
 
+    dependencies {
+        runtime "org.teasdale:arduino-serial:0.2"
+    }
+
+### As a Gradle dependency
+
+    repositories {
+        maven {
+            url "http://dl.bintray.com/steasdal/arduino"
+        }
+    }
+
+    dependencies {
+        runtime "org.teasdale:arduino-serial:0.2"
+    }

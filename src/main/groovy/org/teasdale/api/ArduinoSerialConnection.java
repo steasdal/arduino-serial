@@ -23,7 +23,7 @@ public interface ArduinoSerialConnection {
      * Update the value of a previously registered command.  Once updated,
      * the command and value will be sent on the next transmission cycle.
      * <br><br>
-     * The command being updated must have been previously registerd via the
+     * The command being updated must have been previously registered via the
      * {@link ArduinoSerialConfig#registerCommand(String, int)} method.
      *
      * @param commandName The name of the command to update

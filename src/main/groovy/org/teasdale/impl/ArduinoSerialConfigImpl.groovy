@@ -8,6 +8,8 @@ import org.teasdale.api.ArduinoSerialConfig.Parity
 import org.teasdale.api.ArduinoSerialConfig.Stopbits
 import org.teasdale.api.ArduinoSerialListener
 
+import java.util.concurrent.ConcurrentHashMap
+
 class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
 
     String portname = DEFAULT_PORTNAME;
@@ -18,7 +20,9 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     int updateFrequency = DEFAULT_UPDATE_FREQUENCY
     int missedUpdatesAllowed = DEFAULT_MISSED_UPDATES_ALLOWED
 
-    Map<String, ArduinoSerialCommand> commands = Collections.synchronizedMap(new HashMap<String, ArduinoSerialCommand>())
+    ConcurrentHashMap<String, Integer> updateValues = new ConcurrentHashMap<String, Integer>()
+    ConcurrentHashMap<String, Boolean> updateFlags = new ConcurrentHashMap<String, Boolean>()
+
     Collection<ArduinoSerialListener> listeners = Collections.synchronizedSet(new HashSet<ArduinoSerialListener>())
 
     @Override
@@ -84,17 +88,20 @@ class ArduinoSerialConfigImpl implements ArduinoSerialConfig {
     @Override
     public void registerCommand(String commandName, int initialValue) {
         Validate.notEmpty(commandName)
-        ArduinoSerialCommand command = new ArduinoSerialCommand(commandName, initialValue)
-        commands.put( command.name, command )
+
+        updateValues.putIfAbsent(commandName, new Integer(initialValue))
+        updateFlags.putIfAbsent(commandName, Boolean.FALSE)
     }
 
-    public Map<String, ArduinoSerialCommand> getCommands() { return commands }
+    public ConcurrentHashMap<String, Integer> getUpdateValues() { return updateValues }
+    public ConcurrentHashMap<String, Boolean> getUpdateFlags() { return updateFlags }
 
     @Override
     public String[] getRegisteredCommands() {
         def commandArray = []
-        commands.each { String key, ArduinoSerialCommand command ->
-            commandArray << command.name
+
+        for(Map.Entry<String, Integer> updateValue: updateValues.entrySet()) {
+            commandArray << updateValue.getKey()
         }
 
         return commandArray as String[]

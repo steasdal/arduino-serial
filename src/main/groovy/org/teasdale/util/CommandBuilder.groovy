@@ -1,7 +1,8 @@
 package org.teasdale.util
 
-import org.teasdale.impl.ArduinoSerialCommand
 import org.teasdale.impl.ArduinoSerialConfigImpl
+
+import java.util.concurrent.ConcurrentHashMap
 
 class CommandBuilder {
 
@@ -28,11 +29,11 @@ class CommandBuilder {
     public static Collection<String> buildCommandInitStrings(ArduinoSerialConfigImpl config) {
         Set<String> commandInitStrings = new HashSet<String>()
 
-        synchronized( config.getCommands() ) {
-            config.getCommands().each { String key, ArduinoSerialCommand command ->
-                String commandInitString = INIT_START + COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.initialValue.toString() + NEWLINE
-                commandInitStrings.add commandInitString
-            }
+        Map<String, Integer> updateValues = config.getUpdateValues()
+
+        for(Map.Entry<String, Integer> updateValue: updateValues.entrySet()) {
+            String commandInitString = INIT_START + COMMAND_SEPARATOR + updateValue.getKey() + DATA_SEPARATOR + updateValue.getValue().toString() + NEWLINE
+            commandInitStrings.add commandInitString
         }
 
         return commandInitStrings
@@ -41,12 +42,15 @@ class CommandBuilder {
     public static String buildUpdateString(ArduinoSerialConfigImpl config) {
         StringBuffer stringBuffer = new StringBuffer(COMMAND_START)
 
-        synchronized( config.getCommands() ) {
-            config.getCommands().each { String key, ArduinoSerialCommand command ->
-                if(command.updatePending) {
-                    stringBuffer.append(COMMAND_SEPARATOR + command.name + DATA_SEPARATOR + command.currentValue.toString())
-                    command.updatePending = false
-                }
+        ConcurrentHashMap<String, Integer> updateValues = config.getUpdateValues()
+        ConcurrentHashMap<String, Boolean> updateFlags = config.getUpdateFlags()
+
+        for(Map.Entry<String, Boolean> updateFlag: updateFlags.entrySet()) {
+            if(updateFlag.getValue() == Boolean.TRUE) {
+                Integer updateValue = updateValues.get(updateFlag.getKey())
+
+                stringBuffer.append(COMMAND_SEPARATOR + updateFlag.getKey() + DATA_SEPARATOR + updateValue.toString())
+                updateFlags.replace(updateFlag.getKey(), Boolean.TRUE, Boolean.FALSE)
             }
         }
 

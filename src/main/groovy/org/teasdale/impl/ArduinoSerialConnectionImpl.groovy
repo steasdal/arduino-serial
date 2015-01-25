@@ -13,6 +13,8 @@ import org.teasdale.throwable.ArduinoSerialUnknownCommandException
 import org.teasdale.util.CommandBuilder
 import org.teasdale.util.DataUpdater
 
+import java.util.concurrent.ConcurrentHashMap
+
 class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
 
     ArduinoSerialConfigImpl arduinoSerialConfigImpl;
@@ -52,7 +54,7 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
     public void updateCommand(String commandName, int value) {
         validateCommandName(commandName)
         verifyWriteState()
-        updateCommand( arduinoSerialConfigImpl.getCommands(), commandName, value )
+        updateCommand( arduinoSerialConfigImpl, commandName, value )
     }
 
     @Override
@@ -137,15 +139,16 @@ class ArduinoSerialConnectionImpl implements ArduinoSerialConnection {
         Validate.notEmpty( (String) commandName )
     }
 
-    static void updateCommand(Map<String, ArduinoSerialCommand> commands, String commandName, int value) {
-        synchronized(commands) {
-            ArduinoSerialCommand command = commands.get(commandName)
+    static void updateCommand(ArduinoSerialConfigImpl config, String commandName, int value) {
 
-            if( command == null ) {
-                throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
-            } else {
-                command.updateValue(value)
-            }
+        ConcurrentHashMap updateValues = config.getUpdateValues()
+        ConcurrentHashMap updateFlags = config.getUpdateFlags()
+
+        if( !updateValues.containsKey(commandName) ) {
+            throw new ArduinoSerialUnknownCommandException("Unknown command: ${commandName}")
+        } else {
+            updateValues.replace(commandName, new Integer(value))
+            updateFlags.replace(commandName, Boolean.TRUE)
         }
     }
 
