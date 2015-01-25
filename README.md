@@ -53,7 +53,7 @@ project's classpath.
     }
 
     dependencies {
-        runtime "org.teasdale:arduino-serial:0.2"
+        runtime "org.teasdale:arduino-serial:0.3"
     }
 
 ### As a Gradle dependency
@@ -65,5 +65,5 @@ project's classpath.
     }
 
     dependencies {
-        runtime "org.teasdale:arduino-serial:0.2"
+        runtime "org.teasdale:arduino-serial:0.3"
     }
